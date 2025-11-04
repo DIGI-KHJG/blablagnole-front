@@ -1,4 +1,4 @@
-import { Footer2 } from "@/components/shared/footer";
+import { Footer } from "@/components/shared/footer";
 import { Navbar } from "@/components/shared/navbar";
 
 export default function SiteLayout({
@@ -10,7 +10,7 @@ export default function SiteLayout({
     <>
       <Navbar />
       <main>{children}</main>
-      <Footer2 />
+      <Footer />
     </>
   );
 }

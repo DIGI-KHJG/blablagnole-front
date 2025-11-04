@@ -1,8 +1,9 @@
-import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+import { LuMenu } from "react-icons/lu";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
+import { BlablagnoleLogo } from "@/components/ui/blablagnole-logo";
 import {
   Sheet,
   SheetContent,
@@ -10,23 +11,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import Image from "next/image";
 
 interface MenuItem {
   title: string;
   url: string;
-  description?: string;
   icon?: React.ReactNode;
-  items?: MenuItem[];
 }
 
-interface Navbar1Props {
-  logo?: {
-    url: string;
-    src: string;
-    alt: string;
-    title: string;
-  };
+interface NavbarProps {
   menu?: MenuItem[];
   auth?: {
     login: {
@@ -41,172 +33,90 @@ interface Navbar1Props {
 }
 
 const Navbar = ({
-  logo = {
-    url: "https://www.shadcnblocks.com",
-    src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
-    alt: "logo",
-    title: "Shadcnblocks.com",
-  },
-  menu = [
-    { title: "Home", url: "#" },
-    {
-      title: "Products",
-      url: "#",
-      items: [
-        {
-          title: "Blog",
-          description: "The latest industry news, updates, and info",
-          icon: <Book className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Company",
-          description: "Our mission is to innovate and empower the world",
-          icon: <Trees className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Careers",
-          description: "Browse job listing and discover our workspace",
-          icon: <Sunset className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Support",
-          description:
-            "Get in touch with our support team or visit our community forums",
-          icon: <Zap className="size-5 shrink-0" />,
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Resources",
-      url: "#",
-      items: [
-        {
-          title: "Help Center",
-          description: "Get all the answers you need right here",
-          icon: <Zap className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Contact Us",
-          description: "We are here to help you with any questions you have",
-          icon: <Sunset className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Status",
-          description: "Check the current status of our services and APIs",
-          icon: <Trees className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Terms of Service",
-          description: "Our terms and conditions for using our services",
-          icon: <Book className="size-5 shrink-0" />,
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Pricing",
-      url: "#",
-    },
-    {
-      title: "Blog",
-      url: "#",
-    },
-  ],
+  menu = [],
   auth = {
-    login: { title: "Login", url: "#" },
-    signup: { title: "Sign up", url: "#" },
+    login: { title: "Connexion", url: "/connexion" },
+    signup: { title: "S'inscrire", url: "/inscription" },
   },
-}: Navbar1Props) => {
+}: NavbarProps) => {
   return (
-    <section className="py-4">
-      <div className="container">
+    <section className="bg-background py-4 fixed top-0 left-0 right-0 z-50 border-b">
+      <div className="container mx-auto">
         {/* Desktop Menu */}
         <nav className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
             {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
-              <Image
-                src={logo.src}
-                width={32}
-                height={32}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-              />
-              <span className="text-lg font-semibold tracking-tighter">
-                {logo.title}
-              </span>
-            </a>
+            <BlablagnoleLogo />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-6">
             {menu.map((item) => (
-              <Link key={item.title} href={item.url}>
+              <Link
+                key={item.title}
+                href={item.url}
+                className="text-md font-medium hover:text-primary"
+              >
                 {item.title}
               </Link>
             ))}
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
+            <Button asChild variant="outline" size="lg">
+              <Link className="text-md" href={auth.login.url}>
+                {auth.login.title}
+              </Link>
             </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
+            <Button asChild size="lg">
+              <Link className="text-md" href={auth.signup.url}>
+                {auth.signup.title}
+              </Link>
             </Button>
           </div>
         </nav>
 
         {/* Mobile Menu */}
-        <div className="block lg:hidden">
+        <div className="block lg:hidden px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
-              <Image
-                src={logo.src}
-                width={32}
-                height={32}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-              />
-            </a>
+            <BlablagnoleLogo />
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
+                  <LuMenu className="size-4" />
                 </Button>
               </SheetTrigger>
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
-                      <Image
-                        src={logo.src}
-                        width={32}
-                        height={32}
-                        className="max-h-8 dark:invert"
-                        alt={logo.alt}
-                      />
-                    </a>
+                    <BlablagnoleLogo />
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-6 p-4">
                   {menu.map((item) => (
-                    <Link key={item.title} href={item.url}>
+                    <Link
+                      className="text-md font-medium hover:text-primary"
+                      key={item.title}
+                      href={item.url}
+                    >
                       {item.title}
                     </Link>
                   ))}
 
                   <div className="flex flex-col gap-3">
                     <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
+                      <Link
+                        className="text-md font-medium hover:text-primary"
+                        href={auth.login.url}
+                      >
+                        {auth.login.title}
+                      </Link>
                     </Button>
                     <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
+                      <Link
+                        className="text-md font-medium hover:text-primary"
+                        href={auth.signup.url}
+                      >
+                        {auth.signup.title}
+                      </Link>
                     </Button>
                   </div>
                 </div>

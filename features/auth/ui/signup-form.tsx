@@ -30,16 +30,9 @@ export function SignupForm() {
         </div>
 
         <Field>
-          <div className="flex items-center">
-            <FieldLabel htmlFor="email">Email</FieldLabel>
-            <Link
-              href="#"
-              className="ml-auto text-sm underline-offset-2 hover:underline"
-            >
-              Email oublié ?
-            </Link>
-          </div>
-          <Input id="email" type="email" required />
+          <FieldLabel htmlFor="email">Email</FieldLabel>
+
+          <Input id="email" type="email" placeholder="m@example.com" required />
         </Field>
         <Field>
           <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
