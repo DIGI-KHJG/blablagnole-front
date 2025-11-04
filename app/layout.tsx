@@ -10,6 +10,9 @@ const openSans = Open_Sans({
 export const metadata: Metadata = {
   title: "Blablagnole",
   description: "Blablagnole",
+  icons: {
+    icon: "/bbgl-favicon.ico",
+  },
 };
 
 export default function RootLayout({

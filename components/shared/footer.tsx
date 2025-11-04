@@ -9,7 +9,6 @@ interface MenuItem {
 }
 
 interface FooterProps {
-  tagline?: string;
   menuItems?: MenuItem[];
   copyright?: string;
   bottomLinks?: {
@@ -19,7 +18,6 @@ interface FooterProps {
 }
 
 const Footer = ({
-  tagline = "Blablagnole.fr",
   menuItems = [],
   copyright = "© 2025 Blablagnole.fr - Tous droits réservés.",
 }: FooterProps) => {
@@ -29,9 +27,8 @@ const Footer = ({
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
           <div className="col-span-2 mb-8 lg:mb-0">
             <div className="flex items-center gap-2 lg:justify-start">
-              <BlablagnoleLogo />
+              <BlablagnoleLogo className="w-56" />
             </div>
-            <p className="mt-4">{tagline}</p>
           </div>
           {menuItems.map((section, sectionIdx) => (
             <div key={sectionIdx}>

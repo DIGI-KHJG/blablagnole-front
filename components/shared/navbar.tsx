@@ -1,5 +1,5 @@
-import { LuMenu } from "react-icons/lu";
 import Link from "next/link";
+import { LuMenu } from "react-icons/lu";
 
 import { Button } from "@/components/ui/button";
 
@@ -46,7 +46,7 @@ const Navbar = ({
         <nav className="hidden items-center justify-between lg:flex">
           <div className="flex items-center gap-6">
             {/* Logo */}
-            <BlablagnoleLogo />
+            <BlablagnoleLogo className="w-56" />
           </div>
           <div className="flex items-center gap-6">
             {menu.map((item) => (
@@ -77,7 +77,7 @@ const Navbar = ({
         <div className="block lg:hidden px-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <BlablagnoleLogo />
+            <BlablagnoleLogo className="w-40" />
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -87,7 +87,7 @@ const Navbar = ({
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <BlablagnoleLogo />
+                    <BlablagnoleLogo className="w-48" />
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-6 p-4">
