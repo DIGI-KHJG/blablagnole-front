@@ -39,7 +39,9 @@ export function LoginForm() {
             </Link>
           </div>
           <Input id="password" type="password" required />
+       
         </Field>
+        
         <Field>
           <Button type="submit">Connexion</Button>
         </Field>
