@@ -1,6 +1,4 @@
 "use client";
-import { LuChevronsUpDown, LuLogOut } from "react-icons/lu";
-import { MdAccountCircle } from "react-icons/md";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,27 +15,27 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  useCurrentUserQuery,
-  useLogoutMutation,
-} from "@/features/auth/hooks";
+import { Spinner } from "@/components/ui/spinner";
+import { useLogoutMutation } from "@/features/auth/hooks";
 import { User } from "@/types/user";
-import { Button } from "../ui/button";
-import { useRouter } from "next/router";
-import { on } from "events";
+import { useRouter } from "next/navigation";
+import { LuChevronsUpDown, LuLogOut } from "react-icons/lu";
+import { MdAccountCircle } from "react-icons/md";
 import { toast } from "sonner";
+
 export function NavUser({ user }: { user: User | null }) {
   const { isMobile } = useSidebar();
-    const { mutate: logout, isPending } = useLogoutMutation();
-const router = useRouter();
- const handleLogout = () => {
+  const { mutate: logout, isPending } = useLogoutMutation();
+  const router = useRouter();
+  const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
         router.push("/connexion");
-      },onError: () => {
+      },
+      onError: () => {
         toast.error("Erreur lors de la déconnexion");
-    }
-  } );
+      },
+    });
   };
   return (
     <SidebarMenu>
@@ -68,7 +66,10 @@ const router = useRouter();
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user?.profile_picture} alt={user?.fullName} />
+                  <AvatarImage
+                    src={user?.profile_picture}
+                    alt={user?.fullName}
+                  />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -86,10 +87,9 @@ const router = useRouter();
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Button onClick={handleLogout}><LuLogOut />Déconnexion</Button>
-              
-              
+            <DropdownMenuItem onClick={handleLogout}>
+              <LuLogOut />
+              {isPending ? <Spinner className="size-4" /> : "Déconnexion"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -40,6 +40,21 @@ export async function proxyToSpring(path: string, opts: Opts = {}) {
     cache: "no-store",
   });
 
+  // For 204 No Content, we must not include a body
+  if (upstream.status === 204) {
+    const out = new NextResponse(null, {
+      status: 204,
+    });
+
+    upstream.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "set-cookie") {
+        out.headers.append("set-cookie", value);
+      }
+    });
+
+    return out;
+  }
+
   const text = await upstream.text();
   const isJson = upstream.headers
     .get("content-type")

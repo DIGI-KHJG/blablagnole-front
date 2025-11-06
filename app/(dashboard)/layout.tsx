@@ -28,7 +28,7 @@ export default function DashboardLayout({
             <DashboardBreadcrumb />
           </div>
         </header>
-        <main>{children}</main>
+        <main className="p-4">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
