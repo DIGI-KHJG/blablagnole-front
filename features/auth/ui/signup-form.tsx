@@ -12,12 +12,20 @@ import {
 import { Input } from "@/components/ui/input";
 import InputPassword from "@/components/ui/input-password";
 import InputPasswordStrength from "@/components/ui/input-password-strength";
-import { RegisterSchema, registerSchema } from "@/schemas/register";
+import { Spinner } from "@/components/ui/spinner";
+import { useRegisterMutation } from "@/features/auth/hooks";
+import { RegisterSchema, registerSchema } from "@/features/auth/schemas";
+import { generateAvatarUrl } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export function SignupForm() {
+  const { mutate: register, isPending } = useRegisterMutation();
+  const router = useRouter();
+
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -26,11 +34,27 @@ export function SignupForm() {
       email: "",
       password: "",
       passwordConfirmation: "",
+      role: "ADMIN",
+      profile_picture: "https://ui-avatars.com/api/?name=John+Doe",
     },
   });
 
   const onSubmit = (data: RegisterSchema) => {
-    console.log(data);
+    const formData = {
+      ...data,
+      profile_picture: generateAvatarUrl(data.firstName),
+    };
+
+    console.log(formData);
+
+    register(formData, {
+      onSuccess: () => {
+        router.push("/dashboard");
+      },
+      onError: () => {
+        toast.error("Inscription échouée");
+      },
+    });
   };
 
   return (
@@ -154,7 +178,7 @@ export function SignupForm() {
 
         <Field>
           <Button type="submit" form="signup-form">
-            S&apos;inscrire
+            {isPending ? <Spinner className="w-4 h-4" /> : "S'inscrire"}
           </Button>
         </Field>
 

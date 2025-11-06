@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const loginSchema = z.object({
+  email: z.email({ message: "L'adresse e-mail est invalide." }),
+  password: z
+    .string({ message: "Le mot de passe est requis" })
+    .min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" }),
+});
+
+export type LoginSchema = z.infer<typeof loginSchema>;
+
 export const registerSchema = z
   .object({
     firstName: z
@@ -26,6 +35,8 @@ export const registerSchema = z
         8,
         "La confirmation du mot de passe doit contenir au moins 8 caractères"
       ),
+    role: z.enum(["ADMIN", "COLLABORATOR"]),
+    profile_picture: z.url(),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
     message: "Les mots de passe ne correspondent pas",
