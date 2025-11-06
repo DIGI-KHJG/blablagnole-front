@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FaHome, FaUsers } from "react-icons/fa";
+import { FaCar, FaHome, FaUsers } from "react-icons/fa";
 import { FaCalendarDays } from "react-icons/fa6";
 import { IoCarSport } from "react-icons/io5";
 
@@ -43,11 +43,18 @@ const data = {
       url: "/dashboard/collaborateurs",
       icon: FaUsers,
     },
+    {
+      title: "Véhicules",
+      url: "/dashboard/vehicules",
+      icon: FaCar,
+    },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: user } = useCurrentUserQuery();
+
+  const isAdmin = user?.role === "ADMIN";
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -65,7 +72,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navLinks} />
+        <NavMain
+          items={
+            isAdmin
+              ? data.navLinks
+              : data.navLinks.filter(
+                  (item) =>
+                    item.title !== "Véhicules" &&
+                    item.title !== "Collaborateurs"
+                )
+          }
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user ?? null} />
