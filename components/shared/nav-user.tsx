@@ -1,8 +1,6 @@
 "use client";
-
 import { LuChevronsUpDown, LuLogOut } from "react-icons/lu";
 import { MdAccountCircle } from "react-icons/md";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -19,18 +17,28 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+import {
+  useCurrentUserQuery,
+  useLogoutMutation,
+} from "@/features/auth/hooks";
+import { User } from "@/types/user";
+import { Button } from "../ui/button";
+import { useRouter } from "next/router";
+import { on } from "events";
+import { toast } from "sonner";
+export function NavUser({ user }: { user: User | null }) {
   const { isMobile } = useSidebar();
-
+    const { mutate: logout, isPending } = useLogoutMutation();
+const router = useRouter();
+ const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        router.push("/connexion");
+      },onError: () => {
+        toast.error("Erreur lors de la déconnexion");
+    }
+  } );
+  };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -41,12 +49,12 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user?.profile_picture} alt={user?.fullName} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{user?.fullName}</span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <LuChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -60,12 +68,12 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={user?.profile_picture} alt={user?.fullName} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{user?.fullName}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -79,8 +87,9 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LuLogOut />
-              Déconnexion
+              <Button onClick={handleLogout}><LuLogOut />Déconnexion</Button>
+              
+              
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

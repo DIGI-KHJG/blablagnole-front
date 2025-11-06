@@ -18,12 +18,13 @@ import { FaHome, FaUsers } from "react-icons/fa";
 import { FaCalendarDays } from "react-icons/fa6";
 import { IoCarSport } from "react-icons/io5";
 
+import {
+  useCurrentUserQuery,
+  useLogoutMutation,
+} from "@/features/auth/hooks";
+
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+  
   navLinks: [
     {
       title: "Accueil",
@@ -50,6 +51,10 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+  const { data: user } = useCurrentUserQuery();
+  const logout = useLogoutMutation();
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -69,7 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navLinks} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );
