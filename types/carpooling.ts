@@ -10,6 +10,6 @@ export type Carpooling = {
   time: number;
   available_Seats: number;
   lenght: number;
-  
+  vehicle: vehicle;
     };
 
