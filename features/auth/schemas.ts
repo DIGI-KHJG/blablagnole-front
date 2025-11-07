@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.email({ message: "L'adresse e-mail est invalide." }),
+  email: z.email({ error: "L'adresse e-mail est invalide." }),
   password: z
-    .string({ message: "Le mot de passe est requis" })
-    .min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" }),
+    .string({ error: "Le mot de passe est requis" })
+    .min(8, { error: "Le mot de passe doit contenir au moins 8 caractères" }),
 });
 
 export type LoginSchema = z.infer<typeof loginSchema>;
@@ -12,24 +12,24 @@ export type LoginSchema = z.infer<typeof loginSchema>;
 export const registerSchema = z
   .object({
     firstName: z
-      .string({ message: "Le prénom est requis" })
+      .string({ error: "Le prénom est requis" })
       .trim()
       .min(2, "Le prénom doit contenir au moins 2 caractères"),
 
     lastName: z
-      .string({ message: "Le nom est requis" })
+      .string({ error: "Le nom est requis" })
       .trim()
       .min(2, "Le nom doit contenir au moins 2 caractères"),
 
-    email: z.email({ message: "Entrez une adresse email valide" }).trim(),
+    email: z.email({ error: "Entrez une adresse email valide" }).trim(),
 
     password: z
-      .string({ message: "Le mot de passe est requis" })
+      .string({ error: "Le mot de passe est requis" })
       .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
 
     passwordConfirmation: z
       .string({
-        message: "La confirmation du mot de passe est requise",
+        error: "La confirmation du mot de passe est requise",
       })
       .min(
         8,

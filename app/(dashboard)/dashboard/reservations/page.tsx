@@ -1,7 +1,12 @@
+import DashboardPageTitle from "@/components/shared/dashboard-page-title";
+import { FaCalendarDays } from "react-icons/fa6";
+
 export default function Reservations() {
   return (
-    <div>
-      <h1>Reservations</h1>
-    </div>
+    <DashboardPageTitle
+      title="Réservations"
+      description="Gérez mes réservations"
+      icon={FaCalendarDays}
+    ></DashboardPageTitle>
   );
 }

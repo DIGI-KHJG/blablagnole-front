@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
     // COLLABORATOR n'a pas accès à /dashboard/vehicules et /dashboard/collaborateurs
     if (user?.role === "COLLABORATOR") {
       if (
-        pathname.startsWith("/dashboard/vehicules") ||
+        pathname.startsWith("/dashboard/parc-de-vehicules") ||
         pathname.startsWith("/dashboard/collaborateurs")
       ) {
         // Pas autorisé → redirection vers le dashboard principal

@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FaCar, FaHome, FaUsers } from "react-icons/fa";
+import { FaCar, FaHome, FaTruck, FaUsers } from "react-icons/fa";
 import { FaCalendarDays } from "react-icons/fa6";
 import { IoCarSport } from "react-icons/io5";
 
@@ -44,9 +44,14 @@ const data = {
       icon: FaUsers,
     },
     {
-      title: "Véhicules",
-      url: "/dashboard/vehicules",
+      title: "Véhicules de services",
+      url: "/dashboard/vehicules-de-services",
       icon: FaCar,
+    },
+    {
+      title: "Parc de véhicules",
+      url: "/dashboard/parc-de-vehicules",
+      icon: FaTruck,
     },
   ],
 };
@@ -78,7 +83,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ? data.navLinks
               : data.navLinks.filter(
                   (item) =>
-                    item.title !== "Véhicules" &&
+                    item.title !== "Parc de véhicules" &&
                     item.title !== "Collaborateurs"
                 )
           }
