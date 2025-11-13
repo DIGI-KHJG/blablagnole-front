@@ -59,6 +59,8 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: user } = useCurrentUserQuery();
 
+  console.log(user);
+
   const isAdmin = user?.role === "ADMIN";
 
   return (

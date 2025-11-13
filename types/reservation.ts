@@ -1,4 +1,4 @@
-import { Carpooling } from "@/types/carpooling";
+import { Carpooling } from "@/types/carpool";
 import { User } from "./user";
 
 export type Reservation = {

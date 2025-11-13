@@ -12,7 +12,7 @@ interface InputNumberProps {
   "aria-invalid"?: boolean;
   "aria-labelledby"?: string;
   required?: boolean;
-  unit?: "km" | "Place";
+  unit?: "km" | "Place" | "Porte";
   minValue?: number;
   maxValue?: number;
 }
@@ -58,7 +58,7 @@ export default function InputNumber({
         <Group className="relative flex h-9 w-full items-center overflow-hidden rounded-md border border-input text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none data-disabled:opacity-50 data-focus-within:border-ring data-focus-within:ring-[3px] data-focus-within:ring-ring/50 data-focus-within:has-aria-invalid:border-destructive data-focus-within:has-aria-invalid:ring-destructive/20 dark:data-focus-within:has-aria-invalid:ring-destructive/40">
           <Input className="flex-1 min-w-0 bg-background px-3 py-2 text-foreground tabular-nums" />
           {unit && (
-            <span className="shrink-0 px-2 text-muted-foreground text-sm">
+            <span className="flex h-full shrink-0 items-center px-2 bg-muted/50 text-muted-foreground">
               {unit}
             </span>
           )}

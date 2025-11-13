@@ -4,9 +4,8 @@ export type User = {
   fullName: string;
   firstName: string;
   lastName: string;
-  profile_picture: string;
+  profilePicture: string;
   role: Role;
-  created_at: Date;
 };
 
 export type Role = "ADMIN" | "COLLABORATOR";

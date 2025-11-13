@@ -7,11 +7,11 @@ export default function ConnexionPage() {
       <LoginForm />
       <div className="bg-muted relative hidden md:block">
         <Image
-          src="/auth/login-image.jpg"
+          src="/auth/login-image-8.jpg"
           alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale rounded-none"
-          width={500}
-          height={500}
+          className="absolute inset-0 h-full w-full  object-contain dark:brightness-[0.2] dark:grayscale"
+          width={2000}
+          height={1000}
         />
       </div>
     </>
