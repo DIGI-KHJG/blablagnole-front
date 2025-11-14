@@ -1,14 +1,12 @@
-import { User } from "./user";
-
 export type Car = {
-  id?: string;
-  driver: User;
+  id?: number;
+  driverId?: number;
   registrationPlate: string;
   brand: string;
   model: string;
   category: CarCategory;
   motorisation: CarMotorisation;
-  co2Emission: string;
+  co2Emission: number;
   seats: number;
   color: string;
   imageUrl: string;
@@ -58,14 +56,14 @@ export const getMotorisationColor = (motorisation?: CarMotorisation) => {
 
 export const getCategoryLabel = (category?: CarCategory) => {
   const labels: Record<CarCategory, string> = {
-    MICRO_URBAN: "Micro-urbaines",
-    MINI_CITY_CAR: "Mini-citadines",
-    VERSATILE_CITY_CAR: "Citadines polyvalentes",
-    COMPACT: "Compactes",
-    SMALL_SEDAN: "Berlines S",
-    MEDIUM_SEDAN: "Berlines M",
-    LARGE_SEDAN: "Berlines L",
-    SUV: "SUVs",
+    MICRO_URBAN: "Micro-urbaine",
+    MINI_CITY_CAR: "Mini-citadine",
+    VERSATILE_CITY_CAR: "Citadine polyvalente",
+    COMPACT: "Compact",
+    SMALL_SEDAN: "Berline S",
+    MEDIUM_SEDAN: "Berline M",
+    LARGE_SEDAN: "Berline L",
+    SUV: "SUV",
     OFF_ROAD: "Tout-terrain",
     PICKUP: "Pick-ups",
   };

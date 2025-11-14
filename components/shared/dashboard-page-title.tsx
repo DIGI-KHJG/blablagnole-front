@@ -20,7 +20,7 @@ export default function DashboardPageTitle({
   children,
 }: DashboardPageTitleProps) {
   return (
-    <div className="border-b pb-2 space-y-4">
+    <div className="border-b pb-2 space-y-4 mb-4">
       <div className="flex justify-between items-center">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold flex items-center gap-2">

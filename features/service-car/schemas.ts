@@ -1,8 +1,7 @@
 import { z } from "zod";
 
-export const carSchema = z.object({
+export const serviceCarSchema = z.object({
   id: z.number().optional(),
-  driverId: z.number({ error: "Veuillez sélectionner le conducteur" }),
   registrationPlate: z.string({
     error: "Veuillez saisir la plaque d'immatriculation",
   }),
@@ -16,6 +15,7 @@ export const carSchema = z.object({
   seats: z.number({ error: "Veuillez saisir le nombre de places" }),
   color: z.string({ error: "Veuillez saisir la couleur" }),
   imageUrl: z.url({ error: "Veuillez saisir l'URL de l'image" }),
+  status: z.enum(["IN_SERVICE", "UNDER_REPAIR", "OUT_OF_SERVICE"]).optional(),
 });
 
-export type CarSchema = z.input<typeof carSchema>;
+export type ServiceCarSchema = z.input<typeof serviceCarSchema>;

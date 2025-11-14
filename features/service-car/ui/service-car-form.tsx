@@ -22,27 +22,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetCurrentUser } from "@/features/auth/hooks";
+import {
+  useAddServiceCar,
+  useEditServiceCar,
+} from "@/features/service-car/hooks";
+import {
+  serviceCarSchema,
+  ServiceCarSchema,
+} from "@/features/service-car/schemas";
 import { Car } from "@/types/car";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAddCar, useEditCar } from "../hooks";
-import { carSchema, CarSchema } from "../schemas";
 
-interface CarFormProps {
+interface ServiceCarFormProps {
   initialData?: Car;
   onClose: () => void;
 }
-export function CarForm({ initialData, onClose }: CarFormProps) {
-  const { data: currentUser } = useGetCurrentUser();
-  const { mutate: addCar, isPending } = useAddCar();
-  const { mutate: editCar, isPending: isEditingPending } = useEditCar();
+export function ServiceCarForm({ initialData, onClose }: ServiceCarFormProps) {
+  const { mutate: addServiceCar, isPending } = useAddServiceCar();
+  const { mutate: editServiceCar, isPending: isEditingPending } =
+    useEditServiceCar();
 
-  const form = useForm<CarSchema>({
-    resolver: zodResolver(carSchema),
+  const form = useForm<ServiceCarSchema>({
+    resolver: zodResolver(serviceCarSchema),
     defaultValues: {
       id: initialData?.id,
-      driverId: initialData?.driverId ?? currentUser?.id,
       registrationPlate: initialData?.registrationPlate ?? "",
       brand: initialData?.brand ?? "",
       model: initialData?.model ?? "",
@@ -52,27 +56,28 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
       color: initialData?.color ?? "",
       seats: initialData?.seats ?? 2,
       imageUrl: initialData?.imageUrl ?? "",
+      status: initialData?.status ?? "IN_SERVICE",
     },
   });
 
-  const onSubmit = async (data: CarSchema) => {
+  const onSubmit = async (data: ServiceCarSchema) => {
     if (initialData) {
-      editCar(data, {
+      editServiceCar(data, {
         onSuccess: () => {
           form.reset();
           onClose();
-          toast.success("Véhicule modifié avec succès");
+          toast.success("Véhicule de service modifié avec succès");
         },
         onError: (error) => {
           toast.error(error.message);
         },
       });
     } else {
-      addCar(data, {
+      addServiceCar(data, {
         onSuccess: () => {
           form.reset();
           onClose();
-          toast.success("Véhicule ajouté avec succès");
+          toast.success("Véhicule de service ajouté avec succès");
         },
         onError: (error) => {
           toast.error(error.message);
@@ -81,8 +86,30 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
     }
   };
   return (
-    <form id="car-form" onSubmit={form.handleSubmit(onSubmit)}>
+    <form id="service-car-form" onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
+        {/* Statut */}
+        <Controller
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <Field className="w-fit">
+              <FieldLabel>
+                Statut<span className="text-red-500">*</span>
+              </FieldLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="IN_SERVICE">En service</SelectItem>
+                  <SelectItem value="UNDER_REPAIR">En réparation</SelectItem>
+                  <SelectItem value="OUT_OF_SERVICE">Hors service</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          )}
+        />
         {/* URL de l'image */}
         <Controller
           control={form.control}
@@ -305,7 +332,7 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
             </Button>
             <Button
               type="submit"
-              form="car-form"
+              form="service-car-form"
               disabled={isPending || isEditingPending}
             >
               {isPending || isEditingPending ? (

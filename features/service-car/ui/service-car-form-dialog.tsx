@@ -5,22 +5,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ServiceCarForm } from "@/features/service-car/ui/service-car-form";
 
-import { CarForm } from "@/features/car/ui/car-form";
 import { Car } from "@/types/car";
-import { FaCar } from "react-icons/fa";
-
-interface CarFormDialogProps {
+import { FaTruck } from "react-icons/fa";
+interface ServiceCarFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
   initialData?: Car;
 }
 
-export default function CarFormDialog({
+export default function ServiceCarFormDialog({
   isOpen,
   onClose,
   initialData,
-}: CarFormDialogProps) {
+}: ServiceCarFormDialogProps) {
   const isEditing = !!initialData;
 
   return (
@@ -29,17 +28,19 @@ export default function CarFormDialog({
         <DialogHeader className="border-b pb-3 mb-2">
           <DialogTitle className="flex items-center gap-2">
             <span className="text-primary bg-primary/10 rounded-full p-1">
-              <FaCar className="size-5" />
+              <FaTruck className="size-5" />
             </span>{" "}
-            {isEditing ? "Modifier mon véhicule" : "Ajouter mon véhicule"}
+            {isEditing
+              ? "Modifier le véhicule de service"
+              : "Ajouter un véhicule de service"}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Modifier les informations de mon véhicule"
-              : "Renseignez les informations de mon véhicule"}
+              ? "Modifier les informations du véhicule de service"
+              : "Renseignez les informations du véhicule de service"}
           </DialogDescription>
         </DialogHeader>
-        <CarForm initialData={initialData} onClose={onClose} />
+        <ServiceCarForm initialData={initialData} onClose={onClose} />
       </DialogContent>
     </Dialog>
   );

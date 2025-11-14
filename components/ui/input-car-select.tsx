@@ -1,6 +1,6 @@
 "use client";
 
-import SelectCarCard from "@/features/car/ui/select-car-card";
+import SelectCarCard from "@/components/ui/select-car-card";
 import { Car } from "@/types/car";
 import { useId, useState } from "react";
 

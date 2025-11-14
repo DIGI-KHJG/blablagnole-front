@@ -28,7 +28,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
   const [isPending, setIsPending] = useState(false);
   const { data: currentUser } = useGetCurrentUser();
 
-  const { data: cars } = useGetDriverCarById(currentUser?.id ?? "");
+  const { data: cars } = useGetDriverCarById(currentUser?.id);
 
   const form = useForm<CarpoolSchema>({
     resolver: zodResolver(carpoolSchema),
@@ -39,7 +39,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
       duration: initialData?.duration || 0,
       available_seats: initialData?.available_seats || 0,
       distance: initialData?.distance || 0,
-      car: initialData?.car || "",
+      carId: initialData?.carId || "",
       carpooling_status: initialData?.carpooling_status || "OPEN",
     },
   });
@@ -52,7 +52,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
   return (
     <form id="carpool-form" onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
-        <div className="grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-4">
             {/* Adresse de départ */}
             <Controller
@@ -219,7 +219,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
             {/* Mon véhicule */}
             <Controller
               control={form.control}
-              name="car"
+              name="carId"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel id={`${field.name}-label`} htmlFor={field.name}>

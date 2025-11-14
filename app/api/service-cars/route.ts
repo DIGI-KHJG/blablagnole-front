@@ -1,11 +1,16 @@
 import { proxyToSpring } from "@/lib/api/proxyToSpring";
 import { route } from "@/lib/api/zodRoute";
 
+export const GET = route.handler(async () => {
+  return proxyToSpring("/service-cars", {
+    method: "GET",
+  });
+});
+
 export const POST = route.handler(async (request, { body }) => {
-  return proxyToSpring("/cars", {
+  return proxyToSpring("/service-cars", {
     method: "POST",
     body: {
-      driverId: body.driverId,
       registrationPlate: body.registrationPlate,
       brand: body.brand,
       model: body.model,
@@ -15,16 +20,16 @@ export const POST = route.handler(async (request, { body }) => {
       seats: body.seats,
       color: body.color,
       imageUrl: body.imageUrl,
+      status: body.status,
     },
   });
 });
 
 export const PUT = route.handler(async (request, { body }) => {
-  return proxyToSpring("/cars", {
+  return proxyToSpring("/service-cars", {
     method: "PUT",
     body: {
       id: body.id,
-      driverId: body.driverId,
       registrationPlate: body.registrationPlate,
       brand: body.brand,
       model: body.model,
@@ -34,6 +39,7 @@ export const PUT = route.handler(async (request, { body }) => {
       seats: body.seats,
       color: body.color,
       imageUrl: body.imageUrl,
+      status: body.status,
     },
   });
 });

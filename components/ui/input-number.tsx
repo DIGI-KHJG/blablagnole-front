@@ -12,9 +12,10 @@ interface InputNumberProps {
   "aria-invalid"?: boolean;
   "aria-labelledby"?: string;
   required?: boolean;
-  unit?: "km" | "Place" | "Porte";
+  unit?: "km" | "Place" | "Porte" | "g/km";
   minValue?: number;
   maxValue?: number;
+  allowDecimals?: boolean;
 }
 
 export default function InputNumber({
@@ -28,12 +29,13 @@ export default function InputNumber({
   unit,
   minValue = 0,
   maxValue,
+  allowDecimals: allowDecimalsProp,
 }: InputNumberProps) {
   const generatedId = useId();
   const fieldId = id || generatedId;
   const labelId = ariaLabelledBy || `${fieldId}-label`;
-  // Permettre les décimales pour les kilomètres, pas pour les places
-  const allowDecimals = unit === "km";
+  // Permettre les décimales pour les kilomètres ou si explicitement demandé
+  const allowDecimals = allowDecimalsProp ?? unit === "km";
   const maxFractionDigits = allowDecimals ? 2 : 0;
 
   return (

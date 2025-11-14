@@ -1,6 +1,6 @@
 "use client";
 
-import carBrands from "@/features/car/data/car-brands.json";
+import carBrands from "@/data/car-brands.json";
 import { Combobox } from "./combobox";
 import { Field, FieldError, FieldLabel } from "./field";
 

@@ -34,7 +34,7 @@ export default function SelectCarCard({
           : "border-border hover:border-primary/50"
       )}
     >
-      <div className="relative w-32  h-full overflow-hidden bg-muted sm:w-40 md:w-44">
+      <div className="relative w-32 h-full overflow-hidden bg-muted sm:w-40 md:w-44">
         <Image
           src={car?.imageUrl ?? "/misc/placeholder.svg"}
           alt={`${car?.brand} ${car?.model}`}
@@ -52,7 +52,6 @@ export default function SelectCarCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-3 sm:gap-4 p-4">
-        {/* Header: Brand, Model and Type */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <h3 className="text-base font-bold text-foreground sm:text-lg">
@@ -72,7 +71,6 @@ export default function SelectCarCard({
           )}
         </div>
 
-        {/* Info Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-medium text-muted-foreground">
@@ -88,7 +86,6 @@ export default function SelectCarCard({
           </div>
         </div>
 
-        {/* Bottom Row: Plate and Motorization */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5">

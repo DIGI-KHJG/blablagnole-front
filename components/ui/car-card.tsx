@@ -13,28 +13,32 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Car,
-  CarMotorisation,
   getCategoryLabel,
   getMotorisationColor,
   getMotorisationLabel,
 } from "@/types/car";
-import { Leaf, MoreVertical, Trash2 } from "lucide-react";
+import { Leaf, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { LuUsers } from "react-icons/lu";
+import { LuPencil, LuTrash2, LuUsers } from "react-icons/lu";
 
 type CarCardProps = {
   car?: Car;
   onClick?: () => void;
+  onEdit: () => void;
   onDelete: () => void;
 };
 
-export function CarCard({ car, onClick, onDelete }: CarCardProps) {
+export function CarCard({ car, onClick, onEdit, onDelete }: CarCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleDelete = () => {
     setShowDeleteDialog(false);
     onDelete();
+  };
+
+  const handleEdit = () => {
+    onEdit();
   };
 
   return (
@@ -67,13 +71,24 @@ export function CarCard({ car, onClick, onDelete }: CarCardProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit();
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <LuPencil className="h-4 w-4" />
+                    Modifier
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
                     variant="destructive"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowDeleteDialog(true);
                     }}
+                    className="cursor-pointer"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <LuTrash2 className="h-4 w-4" />
                     Supprimer
                   </DropdownMenuItem>
                 </DropdownMenuContent>

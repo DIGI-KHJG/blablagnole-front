@@ -24,7 +24,7 @@ export default function CarpoolFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader className="border-b pb-3 mb-2">
           <DialogTitle className="flex items-center gap-2">
             <span className="text-primary bg-primary/10 rounded-full p-1">
