@@ -3,11 +3,12 @@
 import { Role, User } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useCurrentUserQuery() {
+export function useGetCurrentUser() {
   return useQuery<User>({
     queryKey: ["auth", "me"],
     queryFn: async () => {
       const res = await fetch("/api/auth/me", {
+        method: "GET",
         credentials: "include",
       });
       if (!res.ok) throw new Error("Non connecté");
@@ -20,7 +21,7 @@ export function useCurrentUserQuery() {
   });
 }
 
-export function useRegisterMutation() {
+export function useRegister() {
   const qc = useQueryClient();
   return useMutation<
     User,
@@ -31,7 +32,7 @@ export function useRegisterMutation() {
       email: string;
       password: string;
       role: Role;
-      profile_picture: string;
+      profilePicture: string;
     }
   >({
     mutationFn: async (input) => {
@@ -56,7 +57,7 @@ export function useRegisterMutation() {
   });
 }
 
-export function useLoginMutation() {
+export function useLogin() {
   const qc = useQueryClient();
   return useMutation<User, Error, { email: string; password: string }>({
     mutationFn: async (input) => {
@@ -81,7 +82,7 @@ export function useLoginMutation() {
   });
 }
 
-export function useLogoutMutation() {
+export function useLogout() {
   const qc = useQueryClient();
   return useMutation<void, Error, void>({
     mutationFn: async () => {

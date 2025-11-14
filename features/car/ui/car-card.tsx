@@ -1,116 +1,210 @@
 "use client";
 
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Car } from "@/types/car";
-import { Check } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Car,
+  CarMotorisation,
+  getCategoryLabel,
+  getMotorisationColor,
+  getMotorisationLabel,
+} from "@/types/car";
+import { Leaf, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import { LuUsers } from "react-icons/lu";
 
-interface CarCardProps {
-  car: Car;
-  isSelected: boolean;
-  onClick: () => void;
-}
+type CarCardProps = {
+  car?: Car;
+  onClick?: () => void;
+  onDelete: () => void;
+};
 
-function getBadgeColor(motorization: string) {
-  switch (motorization.toLowerCase()) {
-    case "électrique":
-      return "bg-green-500/20 text-green-700 dark:text-green-400 border border-green-500/30";
-    case "diesel":
-      return "bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/30";
-    case "essence":
-      return "bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30";
-    default:
-      return "bg-secondary text-secondary-foreground";
-  }
-}
+export function CarCard({ car, onClick, onDelete }: CarCardProps) {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-export default function CarCard({ car, isSelected, onClick }: CarCardProps) {
+  const handleDelete = () => {
+    setShowDeleteDialog(false);
+    onDelete();
+  };
+
   return (
-    <Button
-      onClick={onClick}
-      variant="outline"
-      className={cn(
-        "group relative flex flex-row h-40 sm:h-48 md:h-52 overflow-hidden rounded-lg border-2 transition-all duration-300 hover:shadow-lg p-0",
-        isSelected
-          ? "border-primary shadow-lg"
-          : "border-border hover:border-primary/50"
-      )}
-    >
-      <div className="relative w-32  h-full overflow-hidden bg-muted sm:w-40 md:w-44">
-        <Image
-          src="/misc/placeholder.svg"
-          alt={`${car.brand} ${car.model}`}
-          fill
-          sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 176px"
-          className="object-cover transition-transform duration-300 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-linear-to-r from-black/5 to-transparent pointer-events-none z-10" />
-        {isSelected && (
-          <Badge className="absolute top-2 left-4 flex items-center gap-2 text-xs font-semibold bg-primary text-primary-foreground rounded-full px-3 py-1 shadow-md z-20">
-            <Check className="h-4 w-4" />
-            <span>Sélectionné</span>
-          </Badge>
-        )}
-      </div>
-
-      <div className="flex flex-1 flex-col gap-3 sm:gap-4 p-4">
-        {/* Header: Brand, Model and Type */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <h3 className="text-base font-bold text-foreground sm:text-lg">
-              {car.brand}
-            </h3>
-            <p className="text-sm font-medium text-muted-foreground sm:text-base">
-              {car.model}
-            </p>
-          </div>
-          <span className="whitespace-nowrap rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            {car.type}
-          </span>
-        </div>
-
-        {/* Info Grid */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-muted-foreground">
-              Année
-            </span>
-            <span className="font-semibold text-foreground">{car.year}</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-muted-foreground">
-              Places
-            </span>
-            <span className="font-semibold text-foreground">{car.seats}</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-muted-foreground">
-              Couleur
-            </span>
-            <span className="font-semibold text-foreground">{car.color}</span>
+    <>
+      <Card
+        className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 flex flex-col bg-white border-border p-0 gap-2 cursor-pointer"
+        onClick={onClick}
+      >
+        <div className="relative h-44 w-full overflow-hidden">
+          <Image
+            src={car?.imageUrl || "/misc/placeholder.svg"}
+            alt={`${car?.brand} ${car?.model}`}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/0 to-transparent pointer-events-none" />
+          {car?.id && (
+            <div className="absolute top-3 right-3 z-20">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="h-9 w-9 bg-background/90 hover:bg-background text-foreground backdrop-blur-sm shadow-md border border-border/50"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                    <span className="sr-only">Menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDeleteDialog(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+          <div className="absolute bottom-3 left-3 right-3 flex gap-2 flex-wrap">
+            <Badge
+              variant="outline"
+              className={`${getMotorisationColor(
+                car?.motorisation
+              )} text-sm font-semibold text-white border-none`}
+            >
+              {getMotorisationLabel(car?.motorisation)}
+            </Badge>
+            {car?.category && (
+              <Badge
+                variant="outline"
+                className="bg-background text-foreground text-sm font-semibold"
+              >
+                {getCategoryLabel(car?.category)}
+              </Badge>
+            )}
           </div>
         </div>
 
-        {/* Bottom Row: Plate and Motorization */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex-1">
-            <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5">
-              <span className="text-xs font-mono font-bold text-foreground">
-                {car.plate}
-              </span>
+        <CardHeader className="py-2">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-bold text-card-foreground truncate">
+                {car?.brand} {car?.model}
+              </h3>
+              <p className="text-sm  text-muted-foreground mt-1.5 truncate bg-muted/50 px-2 py-1 rounded-md inline-block">
+                {car?.registrationPlate}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-xs text-muted-foreground font-bold mb-0.5">
+                Couleur
+              </p>
+              <p className="text-sm font-medium text-card-foreground">
+                {car?.color}
+              </p>
             </div>
           </div>
-          <span
-            className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold ${getBadgeColor(
-              car.motorization
-            )}`}
-          >
-            {car.motorization}
-          </span>
+        </CardHeader>
+
+        <CardContent className="flex-1 pb-4 pt-0">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 rounded-lg bg-primary/10 p-3 flex-1 border border-border/50">
+              <div className="p-1.5 rounded-md bg-primary/80">
+                <LuUsers className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground font-bold mb-0.5">
+                  Places
+                </p>
+                <p className="font-medium text-sm text-card-foreground">
+                  {car?.seats}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 rounded-lg bg-primary/10 p-3 flex-1 border border-border/50">
+              <div className="p-1.5 rounded-md bg-primary/80">
+                <Leaf className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground font-bold mb-0.5">
+                  CO₂
+                </p>
+                <p className="font-medium text-sm text-card-foreground">
+                  {car?.co2Emission ? `${car.co2Emission}g/km` : "N/A"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <DeleteConfirmationDialog
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        handleDelete={handleDelete}
+        title="Supprimer le véhicule"
+        description={`${car?.brand} ${car?.model} (${car?.registrationPlate})`}
+      />
+    </>
+  );
+}
+
+export function CarCardSkeleton() {
+  return (
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 flex flex-col bg-card border-border p-0 gap-2">
+      <div className="relative h-44 w-full overflow-hidden">
+        <Skeleton className="h-full w-full" />
+        <div className="absolute bottom-3 left-3 right-3 flex gap-2 flex-wrap">
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-24 rounded-full" />
         </div>
       </div>
-    </Button>
+
+      <CardHeader className="py-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <Skeleton className="h-5 w-32 mb-1.5" />
+            <Skeleton className="h-6 w-24 rounded-md" />
+          </div>
+          <div className="text-right shrink-0">
+            <Skeleton className="h-3 w-12 ml-auto mb-0.5" />
+            <Skeleton className="h-4 w-16 ml-auto" />
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex-1 pb-4 pt-0">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-lg bg-muted/60 p-3 flex-1 border border-border/50">
+            <Skeleton className="h-7 w-7 rounded-md" />
+            <div>
+              <Skeleton className="h-3 w-12 mb-0.5" />
+              <Skeleton className="h-4 w-8" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 rounded-lg bg-muted/60 p-3 flex-1 border border-border/50">
+            <Skeleton className="h-7 w-7 rounded-md" />
+            <div>
+              <Skeleton className="h-3 w-12 mb-0.5" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -9,17 +9,17 @@ import { CarpoolSchema } from "@/features/carpool/schemas";
 import { CarpoolForm } from "@/features/carpool/ui/carpool-form";
 import { IoCarSport } from "react-icons/io5";
 
-interface CarpoolingFormDialogProps {
+interface CarpoolFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
   initialData?: CarpoolSchema;
 }
 
-export default function CarpoolingFormDialog({
+export default function CarpoolFormDialog({
   isOpen,
   onClose,
   initialData,
-}: CarpoolingFormDialogProps) {
+}: CarpoolFormDialogProps) {
   const isEditing = !!initialData;
 
   return (

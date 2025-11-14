@@ -15,7 +15,7 @@ export const POST = route
         email: body.email,
         password: body.password,
         role: body.role,
-        profile_picture: body.profile_picture,
+        profilePicture: body.profilePicture,
       },
     });
   });

@@ -1,6 +1,6 @@
 "use client";
 import DashboardPageTitle from "@/components/shared/dashboard-page-title";
-import CarFormDialog from "@/features/company-car/ui/car-form-dialog";
+import CarFormDialog from "@/features/car/ui/car-form-dialog";
 
 import { useState } from "react";
 import { FaTruck } from "react-icons/fa";

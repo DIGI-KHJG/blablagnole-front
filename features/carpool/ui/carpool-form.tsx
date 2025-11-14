@@ -12,6 +12,8 @@ import { InputDateTime } from "@/components/ui/input-date-time";
 import InputNumber from "@/components/ui/input-number";
 import InputTime from "@/components/ui/input-time";
 import { Spinner } from "@/components/ui/spinner";
+import { useGetCurrentUser } from "@/features/auth/hooks";
+import { useGetDriverCarById } from "@/features/car/hooks";
 import { CarpoolSchema, carpoolSchema } from "@/features/carpool/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -24,6 +26,9 @@ interface CarpoolFormProps {
 
 export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
   const [isPending, setIsPending] = useState(false);
+  const { data: currentUser } = useGetCurrentUser();
+
+  const { data: cars } = useGetDriverCarById(currentUser?.id ?? "");
 
   const form = useForm<CarpoolSchema>({
     resolver: zodResolver(carpoolSchema),
@@ -35,19 +40,14 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
       available_seats: initialData?.available_seats || 0,
       distance: initialData?.distance || 0,
       car: initialData?.car || "",
-      carpooling_status: initialData?.carpooling_status || "ACTIVE",
+      carpooling_status: initialData?.carpooling_status || "OPEN",
     },
   });
 
   const onSubmit = (data: CarpoolSchema) => {
-    try {
-      setIsPending(true);
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsPending(false);
-    }
+    setIsPending(true);
+    console.log(data);
+    setIsPending(false);
   };
   return (
     <form id="carpool-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -226,7 +226,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
                     Mon véhicule
                     <span className="text-red-500">*</span>
                   </FieldLabel>
-                  <InputCarSelect id={field.name} />
+                  <InputCarSelect id={field.name} cars={cars ?? []} />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}

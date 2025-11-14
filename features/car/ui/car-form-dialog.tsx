@@ -6,8 +6,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { CarSchema } from "@/features/company-car/schemas";
-import { CarForm } from "@/features/company-car/ui/car-form";
+import { CarSchema } from "@/features/car/schemas";
+import { CarForm } from "@/features/car/ui/car-form";
 import { FaTruck } from "react-icons/fa";
 
 interface CarFormDialogProps {

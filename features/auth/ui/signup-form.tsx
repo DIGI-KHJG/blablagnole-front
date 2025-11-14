@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import InputPassword from "@/components/ui/input-password";
 import InputPasswordStrength from "@/components/ui/input-password-strength";
 import { Spinner } from "@/components/ui/spinner";
-import { useRegisterMutation } from "@/features/auth/hooks";
+import { useRegister } from "@/features/auth/hooks";
 import { RegisterSchema, registerSchema } from "@/features/auth/schemas";
 import { generateAvatarUrl } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +23,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export function SignupForm() {
-  const { mutate: register, isPending } = useRegisterMutation();
+  const { mutate: register, isPending } = useRegister();
   const router = useRouter();
 
   const form = useForm<RegisterSchema>({
@@ -35,14 +35,14 @@ export function SignupForm() {
       password: "",
       passwordConfirmation: "",
       role: "ADMIN",
-      profile_picture: "https://ui-avatars.com/api/?name=John+Doe",
+      profilePicture: "",
     },
   });
 
   const onSubmit = (data: RegisterSchema) => {
     const formData = {
       ...data,
-      profile_picture: generateAvatarUrl(data.firstName),
+      profilePicture: generateAvatarUrl(data.firstName),
     };
 
     console.log(formData);

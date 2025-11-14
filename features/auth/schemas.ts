@@ -36,7 +36,7 @@ export const registerSchema = z
         "La confirmation du mot de passe doit contenir au moins 8 caractères"
       ),
     role: z.enum(["ADMIN", "COLLABORATOR"]),
-    profile_picture: z.url(),
+    profilePicture: z.url(),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
     message: "Les mots de passe ne correspondent pas",

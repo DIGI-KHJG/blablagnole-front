@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import InputPassword from "@/components/ui/input-password";
 import { Spinner } from "@/components/ui/spinner";
-import { useLoginMutation } from "@/features/auth/hooks";
+import { useLogin } from "@/features/auth/hooks";
 import { LoginSchema, loginSchema } from "@/features/auth/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -20,7 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export function LoginForm() {
-  const { mutate: login, isPending } = useLoginMutation();
+  const { mutate: login, isPending } = useLogin();
   const router = useRouter();
 
   const form = useForm<LoginSchema>({

@@ -22,8 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { useState } from "react";
+import { useGetCurrentUser } from "@/features/auth/hooks";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useAddCar } from "../hooks";
 import { carSchema, CarSchema } from "../schemas";
 
 interface CarFormProps {
@@ -31,34 +33,35 @@ interface CarFormProps {
   onClose: () => void;
 }
 export function CarForm({ initialData, onClose }: CarFormProps) {
-  const [isPending, setIsPending] = useState(false);
+  const { data: currentUser } = useGetCurrentUser();
+  const { mutate: addCar, isPending } = useAddCar();
+
   const form = useForm<CarSchema>({
     resolver: zodResolver(carSchema),
     defaultValues: {
+      driverId: (initialData?.driverId || currentUser?.id) ?? "",
+      registrationPlate: initialData?.registrationPlate || "",
       brand: initialData?.brand || "",
       model: initialData?.model || "",
-      type: initialData?.type || "",
-      year: initialData?.year || new Date().getFullYear(),
+      category: initialData?.category || "",
+      motorisation: initialData?.motorisation || "PETROL",
+      co2Emission: initialData?.co2Emission || "",
       color: initialData?.color || "",
-      seats_count: initialData?.seats_count || 2,
-      doors_count: initialData?.doors_count || 2,
-      plate_number: initialData?.plate_number || "",
-      is_available: initialData?.is_available || true,
-      image: initialData?.image || "",
-      status: initialData?.status || "AVAILABLE",
-      motorization: initialData?.motorization || "GASOLINE",
-      co2_emissions_km: initialData?.co2_emissions_km || null,
+      seats: initialData?.seats || 2,
+      imageUrl: initialData?.imageUrl || "",
     },
   });
-  const onSubmit = (data: CarSchema) => {
-    try {
-      setIsPending(true);
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsPending(false);
-    }
+  const onSubmit = async (data: CarSchema) => {
+    addCar(data, {
+      onSuccess: () => {
+        form.reset();
+        onClose();
+        toast.success("Véhicule ajouté avec succès");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   };
   return (
     <form id="car-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -66,7 +69,7 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
         {/* URL de l'image */}
         <Controller
           control={form.control}
-          name="image"
+          name="imageUrl"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor={field.name}>
@@ -133,12 +136,9 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
               {/* Nombre de places */}
               <Controller
                 control={form.control}
-                name="seats_count"
+                name="seats"
                 render={({ field, fieldState }) => (
-                  <Field
-                    data-invalid={fieldState.invalid}
-                    className="flex-1 min-w-0"
-                  >
+                  <Field data-invalid={fieldState.invalid} className="w-1/2">
                     <FieldLabel htmlFor={field.name}>
                       Nombre de places<span className="text-red-500">*</span>
                     </FieldLabel>
@@ -159,27 +159,22 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
                 )}
               />
 
-              {/* Nombre de portes */}
+              {/* Émissions de CO2 */}
               <Controller
                 control={form.control}
-                name="doors_count"
+                name="co2Emission"
                 render={({ field, fieldState }) => (
-                  <Field
-                    data-invalid={fieldState.invalid}
-                    className="flex-1 min-w-0"
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
-                      Nombre de portes<span className="text-red-500">*</span>
+                      CO2 (g/km)<span className="text-red-500">*</span>
                     </FieldLabel>
-                    <InputNumber
-                      value={field.value}
-                      onChange={(value) => field.onChange(value ?? 0)}
-                      onBlur={field.onBlur}
+                    <Input
+                      {...field}
                       id={field.name}
-                      aria-invalid={fieldState.invalid}
+                      type="text"
+                      value={field.value ?? ""}
+                      placeholder="CO2 (g/km)"
                       required
-                      unit="Porte"
-                      minValue={1}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -188,35 +183,13 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
                 )}
               />
             </div>
-
-            {/* Couleur */}
-            <Controller
-              control={form.control}
-              name="color"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Couleur<span className="text-red-500">*</span>
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    placeholder="Couleur"
-                    required
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
           </div>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              {/* Type */}
+              {/* Catégorie */}
               <Controller
                 control={form.control}
-                name="type"
+                name="category"
                 render={({ field, fieldState }) => (
                   <InputCarCategory
                     value={field.value}
@@ -225,34 +198,29 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     required
-                    className="flex-1 min-w-0"
+                    className="w-1/2"
                     error={fieldState.error?.message}
                   />
                 )}
               />
-              {/* Année */}
+              {/* Motorisation */}
               <Controller
                 control={form.control}
-                name="year"
-                render={({ field, fieldState }) => (
-                  <Field
-                    data-invalid={fieldState.invalid}
-                    className="flex-1 min-w-0"
-                  >
-                    <FieldLabel htmlFor={field.name}>
-                      Année<span className="text-red-500">*</span>
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="number"
-                      min={1950}
-                      max={new Date().getFullYear() + 1}
-                      required
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                name="motorisation"
+                render={({ field }) => (
+                  <Field className="flex-1 min-w-0">
+                    <FieldLabel>Motorisation</FieldLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PETROL">Essence</SelectItem>
+                        <SelectItem value="DIESEL">Diesel</SelectItem>
+                        <SelectItem value="ELECTRIC">Électrique</SelectItem>
+                        <SelectItem value="HYBRID">Hybride</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
               />
@@ -262,12 +230,9 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
               {/* Plaque d'immatriculation */}
               <Controller
                 control={form.control}
-                name="plate_number"
+                name="registrationPlate"
                 render={({ field, fieldState }) => (
-                  <Field
-                    data-invalid={fieldState.invalid}
-                    className="flex-1 min-w-0"
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={field.name}>
                       Plaque d&apos;immatriculation
                       <span className="text-red-500">*</span>
@@ -286,52 +251,28 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
                 )}
               />
 
-              {/* Motorisation */}
+              {/* Couleur */}
               <Controller
                 control={form.control}
-                name="motorization"
-                render={({ field }) => (
-                  <Field className="flex-1 min-w-0">
-                    <FieldLabel>Motorisation</FieldLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="GASOLINE">Essence</SelectItem>
-                        <SelectItem value="DIESEL">Diesel</SelectItem>
-                        <SelectItem value="ELECTRIC">Électrique</SelectItem>
-                        <SelectItem value="HYBRID">Hybride</SelectItem>
-                      </SelectContent>
-                    </Select>
+                name="color"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      Couleur<span className="text-red-500">*</span>
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      placeholder="Couleur"
+                      required
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
                   </Field>
                 )}
               />
             </div>
-            {/* Émissions de CO2 */}
-            <Controller
-              control={form.control}
-              name="co2_emissions_km"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    CO2 (g/km)<span className="text-red-500">*</span>
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    type="number"
-                    min={0}
-                    value={field.value ?? ""}
-                    placeholder="CO2 (g/km)"
-                    required
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
           </div>
         </div>
 
@@ -340,7 +281,7 @@ export function CarForm({ initialData, onClose }: CarFormProps) {
             <Button type="button" variant="outline" onClick={onClose}>
               Annuler
             </Button>
-            <Button type="submit" form="car-form">
+            <Button type="submit" form="car-form" disabled={isPending}>
               {isPending ? <Spinner className="w-4 h-4" /> : "Ajouter"}
             </Button>
           </div>

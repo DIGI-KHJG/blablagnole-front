@@ -16,7 +16,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
-import { useLogoutMutation } from "@/features/auth/hooks";
+import { useLogout } from "@/features/auth/hooks";
 import { User } from "@/types/user";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -26,7 +26,7 @@ import { toast } from "sonner";
 
 export function NavUser({ user }: { user: User | null }) {
   const { isMobile } = useSidebar();
-  const { mutate: logout, isPending } = useLogoutMutation();
+  const { mutate: logout, isPending } = useLogout();
   const router = useRouter();
   const handleLogout = () => {
     logout(undefined, {
@@ -82,10 +82,12 @@ export function NavUser({ user }: { user: User | null }) {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <MdAccountCircle className="size-5" />
-                <Link href="/dashboard/profile">Mon profil</Link>
-              </DropdownMenuItem>
+              <Link href="/dashboard/profile" className="cursor-pointer">
+                <DropdownMenuItem>
+                  <MdAccountCircle className="size-5" />
+                  Mon profil
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>

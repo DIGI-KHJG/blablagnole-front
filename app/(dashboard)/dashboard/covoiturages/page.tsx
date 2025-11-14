@@ -1,7 +1,7 @@
 "use client";
 
 import DashboardPageTitle from "@/components/shared/dashboard-page-title";
-import CarpoolingFormDialog from "@/features/carpooling/ui/carpooling-form-dialog";
+import CarpoolFormDialog from "@/features/carpool/ui/carpool-form-dialog";
 import { useState } from "react";
 import { IoCarSport } from "react-icons/io5";
 
@@ -17,7 +17,7 @@ export default function Covoiturages() {
         buttonText="Publier un covoiturage"
         onButtonClick={() => setIsFormDialogOpen(true)}
       ></DashboardPageTitle>
-      <CarpoolingFormDialog
+      <CarpoolFormDialog
         isOpen={isFormDialogOpen}
         onClose={() => setIsFormDialogOpen(false)}
       />

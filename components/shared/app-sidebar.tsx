@@ -18,7 +18,7 @@ import { FaCar, FaHome, FaTruck, FaUsers } from "react-icons/fa";
 import { FaCalendarDays } from "react-icons/fa6";
 import { IoCarSport } from "react-icons/io5";
 
-import { useCurrentUserQuery } from "@/features/auth/hooks";
+import { useGetCurrentUser } from "@/features/auth/hooks";
 
 const data = {
   navLinks: [
@@ -57,11 +57,9 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: user } = useCurrentUserQuery();
+  const { data: currentUser } = useGetCurrentUser();
 
-  console.log(user);
-
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = currentUser?.role === "ADMIN";
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -92,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user ?? null} />
+        <NavUser user={currentUser ?? null} />
       </SidebarFooter>
     </Sidebar>
   );
