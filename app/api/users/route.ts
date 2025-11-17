@@ -8,3 +8,10 @@ export const GET = route
       method: "GET",
     });
   });
+export const DELETE = route
+  .params(z.object({ id: z.string() }))
+  .handler(async (request, { params }) => {
+    return proxyToSpring(`/users/${params.id}`, {
+      method: "DELETE",
+    });
+  });

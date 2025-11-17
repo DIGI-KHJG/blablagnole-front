@@ -14,7 +14,6 @@ console.log("users",users);
 
 
 
-
   return (
     <>
       <DashboardPageTitle
@@ -22,8 +21,7 @@ console.log("users",users);
         description="Gérez les collaborateurs de l'entreprise"
         icon={FaUsers}
       ></DashboardPageTitle>
-     <DataTable data={users ?? []} columns={columns} />
-
+             <DataTable data={users ?? []} columns={columns} />
     </>
   );
 }

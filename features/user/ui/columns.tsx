@@ -1,15 +1,20 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { useDeleteUser } from "@/features/user/hooks";
+import { Button } from "@/components/ui/button";
+
 
 
 export type Collaborateur = {
   id: number;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   full_name: string;
   email: string;
-  profile_picture: string | null;
+  profilePicture: string | null;
   role: string;
 };
 
@@ -27,10 +32,10 @@ export const columns: ColumnDef<Collaborateur>[] = [
     header: "Email",
   },
  {
-  accessorKey: "profile_picture",
+  accessorKey: "profilePicture",
   header: "Photo",
   cell: ({ row }) => {
-    const url = row.original.profile_picture;
+    const url = row.original.profilePicture;
 
     return url ? (
       <img
@@ -44,36 +49,40 @@ export const columns: ColumnDef<Collaborateur>[] = [
   },
 },
 
+
   {
   id: "actions",
   header: "Actions",
   cell: ({ row }) => {
     const user = row.original;
-
-    const handleDelete = async () => {
-      if (!confirm(`Supprimer ${user.first_name} ${user.last_name} ?`)) return;
-
-      const res = await fetch(`/api/dashboard/collaborateurs/${user.id}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        alert("Collaborateur supprimé !");
-        window.location.reload(); // refresh tableau
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    };
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const deleteUser = useDeleteUser();
 
     return (
-      <button
-        onClick={handleDelete}
-        className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-      >
-        Supprimer
-      </button>
+      <>
+        <Button
+          variant="destructive"
+          onClick={() => setDialogOpen(true)}
+          className="text-sm"
+        >
+          Supprimer
+        </Button>
+
+        <DeleteConfirmationDialog
+          showDeleteDialog={dialogOpen}
+          setShowDeleteDialog={setDialogOpen}
+          title="Supprimer un utilisateur"
+          description={`${user.firstName} ${user.lastName}`}
+          handleDelete={() => {
+            deleteUser.mutate(user.id, {
+              onSuccess: () => setDialogOpen(false),
+            });
+          }}
+        />
+      </>
     );
   },
 }
+
 
 ];
