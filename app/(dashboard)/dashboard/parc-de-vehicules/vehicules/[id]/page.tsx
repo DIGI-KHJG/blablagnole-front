@@ -181,7 +181,7 @@ export default function ServiceCarDetailsPage() {
         setShowDeleteDialog={setShowDeleteDialog}
         handleDelete={() => handleDeleteServiceCar(serviceCar?.id as number)}
         title="Supprimer le véhicule de service"
-        description={`${serviceCar?.brand} ${serviceCar?.model} (${serviceCar?.registrationPlate})`}
+        description={`supprimer le véhicule de service ${serviceCar?.brand} ${serviceCar?.model} (${serviceCar?.registrationPlate})`}
       />
     </div>
   );

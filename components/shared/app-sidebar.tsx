@@ -62,8 +62,17 @@ const data = {
     },
     {
       title: "Parc de véhicules",
-      url: "/dashboard/parc-de-vehicules",
       icon: FaTruck,
+      items: [
+        {
+          title: "Liste des véhicules",
+          url: "/dashboard/parc-de-vehicules/vehicules",
+        },
+        {
+          title: "Toutes les locations",
+          url: "/dashboard/parc-de-vehicules/locations",
+        },
+      ],
     },
   ],
 };

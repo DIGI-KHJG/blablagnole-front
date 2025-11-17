@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { User } from "@/types/user";
+import { getRoleColor, getRoleLabel, User } from "@/types/user";
 import { LuMail, LuUser } from "react-icons/lu";
 
 interface ProfileHeaderProps {
@@ -29,10 +29,12 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             {user?.fullName}
           </h1>
           <Badge
-            variant={user?.role === "ADMIN" ? "secondary" : "default"}
-            className="inline-block text-sm"
+            variant="outline"
+            className={`${getRoleColor(
+              user?.role
+            )} text-sm   text-white border-none`}
           >
-            {user?.role === "ADMIN" ? "Administrateur" : "Collaborateur"}
+            {getRoleLabel(user?.role)}
           </Badge>
         </div>
 

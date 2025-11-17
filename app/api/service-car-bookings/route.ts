@@ -13,3 +13,17 @@ export const POST = route.handler(async (request, { body }) => {
     },
   });
 });
+
+export const PUT = route.handler(async (request, { body }) => {
+  return proxyToSpring("/service-car-bookings", {
+    method: "PUT",
+    body: {
+      id: body.id,
+      serviceCarId: body.serviceCarId,
+      driverId: body.driverId,
+      startAt: body.startAt,
+      endAt: body.endAt,
+      status: body.status,
+    },
+  });
+});

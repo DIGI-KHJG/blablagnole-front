@@ -185,7 +185,7 @@ export function CarCard({
         setShowDeleteDialog={setShowDeleteDialog}
         handleDelete={handleDelete}
         title="Supprimer le véhicule"
-        description={`${car?.brand} ${car?.model} (${car?.registrationPlate})`}
+        description={`supprimer le véhicule ${car?.brand} ${car?.model} (${car?.registrationPlate})`}
       />
     </>
   );

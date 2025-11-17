@@ -73,3 +73,58 @@ export function useBookServiceCar() {
     },
   });
 }
+
+export function useEditServiceCarBooking() {
+  const qc = useQueryClient();
+  return useMutation<ServiceCarBooking, Error, ServiceCarBookingSchema>({
+    mutationFn: async (input) => {
+      const res = await fetch("/api/service-car-bookings", {
+        method: "PUT",
+        credentials: "include",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({
+          message:
+            "Erreur lors de la modification de la réservation de véhicule de service",
+        }));
+        throw new Error(
+          error.message ||
+            "Erreur lors de la modification de la réservation de véhicule de service"
+        );
+      }
+      return res.json() as Promise<ServiceCarBooking>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+    },
+  });
+}
+
+export function useDeleteServiceCarBooking() {
+  const qc = useQueryClient();
+  return useMutation<void, Error, number>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/service-car-bookings/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({
+          message:
+            "Erreur lors de la suppression de la réservation de véhicule de service",
+        }));
+        throw new Error(
+          error.message ||
+            "Erreur lors de la suppression de la réservation de véhicule de service"
+        );
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+    },
+  });
+}

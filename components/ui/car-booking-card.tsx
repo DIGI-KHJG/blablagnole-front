@@ -119,7 +119,7 @@ export function CarBookingCard({ booking, onClick }: CarBookingCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-3 pt-2 border-t border-border/50">
+        <div className="flex items-center gap-2 rounded-lg bg-primary/10 p-3 pt-2 border-t border-border/50">
           <div className="p-1.5 rounded-md bg-primary/80">
             <Calendar className="h-4 w-4 text-white" />
           </div>

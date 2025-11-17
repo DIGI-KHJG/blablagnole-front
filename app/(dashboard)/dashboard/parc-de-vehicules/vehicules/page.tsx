@@ -24,7 +24,7 @@ export default function ParcDeVehicules() {
   const { mutate: deleteServiceCar } = useDeleteServiceCar();
 
   const handleClickServiceCar = (id: number) => {
-    router.push(`/dashboard/parc-de-vehicules/${id}`);
+    router.push(`/dashboard/parc-de-vehicules/vehicules/${id}`);
   };
 
   const handleDeleteServiceCar = async (id: number) => {

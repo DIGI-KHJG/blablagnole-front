@@ -1,18 +1,29 @@
 "use client";
 
-import { DetailRow } from "@/components/shared/details-row";
+import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { DetailRow, DetailRowSkeleton } from "@/components/shared/details-row";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetServiceCarBookingById } from "@/features/service-car-booking/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useDeleteServiceCarBooking,
+  useGetServiceCarBookingById,
+} from "@/features/service-car-booking/hooks";
+import ServiceCarBookingFormDialog from "@/features/service-car-booking/ui/service-car-booking-form-dialog";
 import { formatDateTime } from "@/lib/utils";
 import {
   getCategoryLabel,
   getMotorisationColor,
   getMotorisationLabel,
-  getStatusColor,
   getStatusLabel,
 } from "@/types/car";
+import {
+  getBookingStatusColor,
+  getBookingStatusLabel,
+} from "@/types/service-car-booking";
+import { getRoleColor, getRoleLabel } from "@/types/user";
 import {
   AlertCircle,
   Calendar,
@@ -28,14 +39,34 @@ import { useState } from "react";
 import { BsFuelPump } from "react-icons/bs";
 import { MdGarage } from "react-icons/md";
 import { TbLicense } from "react-icons/tb";
+import { toast } from "sonner";
 
 export default function ServiceCarBookingDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const { data: serviceCarBooking, isPending } = useGetServiceCarBookingById(
     id as string
   );
+
+  const { mutate: deleteServiceCarBooking } = useDeleteServiceCarBooking();
+
+  const handleDeleteServiceCarBooking = async (id: number) => {
+    deleteServiceCarBooking(id, {
+      onSuccess: () => {
+        toast.success("Location annulée avec succès");
+        router.push("/dashboard/vehicules-de-services/mes-locations");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+  };
+
+  if (isPending) {
+    return <ServiceCarBookingDetailsSkeleton />;
+  }
 
   return (
     <div className="bg-background">
@@ -68,15 +99,6 @@ export default function ServiceCarBookingDetailsPage() {
               {serviceCarBooking?.serviceCar?.category && (
                 <Badge className="bg-background text-foreground text-md font-semibold">
                   {getCategoryLabel(serviceCarBooking?.serviceCar?.category)}
-                </Badge>
-              )}
-              {serviceCarBooking?.serviceCar?.status && (
-                <Badge
-                  className={`${getStatusColor(
-                    serviceCarBooking?.serviceCar?.status
-                  )} text-white text-md font-semibold`}
-                >
-                  {getStatusLabel(serviceCarBooking?.serviceCar?.status)}
                 </Badge>
               )}
             </div>
@@ -150,15 +172,23 @@ export default function ServiceCarBookingDetailsPage() {
         <div className="col-span-1">
           <Card className="border-border h-full">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">
+              <CardTitle className="text-2xl font-bold flex items-center justify-between gap-2">
                 Détails de la location
+                <Badge
+                  variant="outline"
+                  className={`${getBookingStatusColor(
+                    serviceCarBooking?.status
+                  )} text-base text-white border-none`}
+                >
+                  {" "}
+                  {getBookingStatusLabel(serviceCarBooking?.status)}
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Dates de réservation */}
               <Card className="border-border bg-white">
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="text-lg">
                     Dates de réservation :
                   </CardTitle>
                 </CardHeader>
@@ -194,26 +224,47 @@ export default function ServiceCarBookingDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Informations du conducteur */}
               {serviceCarBooking?.driver && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold">Conducteur</h3>
-                  </div>
-                  <div className="pl-7">
-                    <p className="text-sm text-muted-foreground">
-                      {serviceCarBooking.driver.firstName}{" "}
-                      {serviceCarBooking.driver.lastName}
-                    </p>
-                  </div>
-                </div>
+                <Card className="border-border bg-white">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      Conducteur :
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage
+                          src={
+                            serviceCarBooking?.driver?.profilePicture ||
+                            "/misc/placeholder.svg"
+                          }
+                        />
+                        <AvatarFallback>
+                          {serviceCarBooking?.driver?.firstName.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-md text-muted-foreground font-bold">
+                        {serviceCarBooking?.driver?.firstName}{" "}
+                        {serviceCarBooking?.driver?.lastName}
+                      </p>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`${getRoleColor(
+                        serviceCarBooking?.driver?.role
+                      )} text-sm text-white border-none`}
+                    >
+                      {getRoleLabel(serviceCarBooking?.driver?.role)}
+                    </Badge>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Boutons d'action */}
               <div className="flex flex-col gap-3 pt-4">
                 <Button
-                  onClick={() => setIsEditDialogOpen(true)}
+                  onClick={() => setShowEditDialog(true)}
                   variant="outline"
                   className="w-full"
                   disabled={isPending || !serviceCarBooking?.id}
@@ -222,7 +273,7 @@ export default function ServiceCarBookingDetailsPage() {
                   Modifier les dates
                 </Button>
                 <Button
-                  onClick={() => {}}
+                  onClick={() => setShowCancelDialog(true)}
                   variant="destructive"
                   className="w-full"
                   disabled={isPending || !serviceCarBooking?.id}
@@ -230,6 +281,120 @@ export default function ServiceCarBookingDetailsPage() {
                   <X className="h-4 w-4 mr-2" />
                   Annuler la location
                 </Button>
+              </div>
+
+              <ServiceCarBookingFormDialog
+                isOpen={showEditDialog}
+                onClose={() => setShowEditDialog(false)}
+                initialData={serviceCarBooking}
+              />
+
+              <DeleteConfirmationDialog
+                showDeleteDialog={showCancelDialog}
+                setShowDeleteDialog={setShowCancelDialog}
+                handleDelete={() =>
+                  serviceCarBooking?.id &&
+                  handleDeleteServiceCarBooking(serviceCarBooking?.id)
+                }
+                title="Annuler la location"
+                description={`annuler la location de ${serviceCarBooking?.serviceCar?.brand} ${serviceCarBooking?.serviceCar?.model} (${serviceCarBooking?.serviceCar?.registrationPlate})`}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ServiceCarBookingDetailsSkeleton() {
+  return (
+    <div className="bg-background">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="col-span-1">
+          <div className="relative h-96 w-full overflow-hidden rounded-lg mb-6 bg-muted">
+            <Skeleton className="h-full w-full" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 via-black/0 to-transparent" />
+
+            {/* Badges en bas à gauche */}
+            <div className="absolute bottom-4 left-4 flex gap-2 flex-wrap">
+              <Skeleton className="h-7 w-24 rounded-full" />
+              <Skeleton className="h-7 w-20 rounded-full" />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <Skeleton className="h-10 w-64 mb-2" />
+          </div>
+
+          <Card className="border-border flex-1">
+            <CardHeader>
+              <Skeleton className="h-6 w-48" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <DetailRowSkeleton />
+                  <DetailRowSkeleton />
+                  <DetailRowSkeleton />
+                  <DetailRowSkeleton />
+                </div>
+
+                <div className="space-y-4">
+                  <DetailRowSkeleton />
+                  <DetailRowSkeleton />
+                  <DetailRowSkeleton />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="col-span-1">
+          <Card className="border-border h-full">
+            <CardHeader>
+              <div className="flex items-center justify-between gap-2">
+                <Skeleton className="h-7 w-48" />
+                <Skeleton className="h-6 w-24 rounded-full" />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Card className="border-border bg-white">
+                <CardHeader>
+                  <Skeleton className="h-6 w-40" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Card className="flex-1 bg-primary/5">
+                      <CardContent>
+                        <DetailRowSkeleton />
+                      </CardContent>
+                    </Card>
+                    <Card className="flex-1 bg-primary/5">
+                      <CardContent>
+                        <DetailRowSkeleton />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border bg-white">
+                <CardHeader>
+                  <Skeleton className="h-6 w-32" />
+                </CardHeader>
+                <CardContent className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <Skeleton className="h-5 w-32" />
+                  </div>
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </CardContent>
+              </Card>
+
+              {/* Boutons d'action */}
+              <div className="flex flex-col gap-3 pt-4">
+                <Skeleton className="h-10 w-full rounded-md" />
+                <Skeleton className="h-10 w-full rounded-md" />
               </div>
             </CardContent>
           </Card>

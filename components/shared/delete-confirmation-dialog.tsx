@@ -28,10 +28,9 @@ export function DeleteConfirmationDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            Êtes-vous sûr de vouloir supprimer <strong>{description}</strong> ?{" "}
-            <br />
-            Cette action est irréversible.
+          <DialogDescription className="text-balance">
+            Êtes-vous sûr de vouloir <strong>{description}</strong> ? Cette
+            action est irréversible.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -39,7 +38,7 @@ export function DeleteConfirmationDialog({
             Annuler
           </Button>
           <Button variant="destructive" onClick={handleDelete}>
-            Supprimer
+            Confirmer
           </Button>
         </DialogFooter>
       </DialogContent>
