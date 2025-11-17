@@ -15,7 +15,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { FaCar, FaHome, FaTruck, FaUsers } from "react-icons/fa";
-import { FaCalendarDays } from "react-icons/fa6";
 import { IoCarSport } from "react-icons/io5";
 
 import { useGetCurrentUser } from "@/features/auth/hooks";
@@ -27,26 +26,39 @@ const data = {
       url: "/dashboard",
       icon: FaHome,
     },
+    {
+      title: "Co-voiturage",
+      icon: IoCarSport,
+      items: [
+        {
+          title: "Mes annonces",
+          url: "/dashboard/covoiturages/mes-annonces",
+        },
+        {
+          title: "Mes réservations",
+          url: "/dashboard/covoiturages/mes-reservations",
+        },
+      ],
+    },
 
     {
-      title: "Co-voiturages",
-      url: "/dashboard/covoiturages",
-      icon: IoCarSport,
-    },
-    {
-      title: "Réservations",
-      url: "/dashboard/reservations",
-      icon: FaCalendarDays,
+      title: "Véhicules de services",
+      icon: FaCar,
+      items: [
+        {
+          title: "Louer un véhicule",
+          url: "/dashboard/vehicules-de-services/location",
+        },
+        {
+          title: "Mes Locations",
+          url: "/dashboard/vehicules-de-services/mes-locations",
+        },
+      ],
     },
     {
       title: "Collaborateurs",
       url: "/dashboard/collaborateurs",
       icon: FaUsers,
-    },
-    {
-      title: "Véhicules de services",
-      url: "/dashboard/vehicules-de-services",
-      icon: FaCar,
     },
     {
       title: "Parc de véhicules",

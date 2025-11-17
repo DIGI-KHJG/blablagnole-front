@@ -69,3 +69,23 @@ export const getCategoryLabel = (category?: CarCategory) => {
   };
   return category ? labels[category] : "";
 };
+
+export const getStatusLabel = (status?: CarStatus) => {
+  const labels: Record<CarStatus, string> = {
+    IN_SERVICE: "En service",
+    UNDER_REPAIR: "En réparation",
+    OUT_OF_SERVICE: "Hors service",
+  };
+  return status ? labels[status] : "";
+};
+
+export const getStatusColor = (status?: CarStatus) => {
+  switch (status) {
+    case "IN_SERVICE":
+      return "bg-emerald-500";
+    case "UNDER_REPAIR":
+      return "bg-amber-500";
+    case "OUT_OF_SERVICE":
+      return "bg-red-500";
+  }
+};

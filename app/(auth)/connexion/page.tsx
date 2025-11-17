@@ -1,3 +1,4 @@
+import { BlablagnoleLogo } from "@/components/ui/blablagnole-logo";
 import { LoginForm } from "@/features/auth/ui/login-form";
 import Image from "next/image";
 
@@ -6,13 +7,18 @@ export default function ConnexionPage() {
     <>
       <LoginForm />
       <div className="bg-muted relative hidden md:block">
-        <Image
-          src="/auth/login-image-8.jpg"
-          alt="Image"
-          className="absolute inset-0 h-full w-full  object-contain dark:brightness-[0.2] dark:grayscale"
-          width={2000}
-          height={1000}
-        />
+        <div className="relative h-full w-full">
+          <Image
+            src="/auth/login-image.jpg"
+            alt="Image"
+            className="absolute inset-0 h-full w-full  object-cover object-right dark:brightness-[0.2] dark:grayscale"
+            fill
+          />
+          <h2 className="absolute top-4 left-6 text-5xl text-white font-bold">
+            Faites route commune, <br /> gagnez du temps !
+          </h2>
+          <BlablagnoleLogo className="absolute bottom-0 right-6 w-56" />
+        </div>
       </div>
     </>
   );

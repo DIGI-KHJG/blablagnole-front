@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { CarCard } from "@/components/ui/car-card";
+import { CarCardSkeleton } from "@/components/ui/car-card-skeleton";
 import { useGetCurrentUser } from "@/features/auth/hooks";
 import { useDeleteCar, useGetDriverCarById } from "@/features/car/hooks";
-import { CarCard, CarCardSkeleton } from "@/components/ui/car-card";
 import CarFormDialog from "@/features/car/ui/car-form-dialog";
 import { ProfileHeader } from "@/features/profile/ui/profile-header";
 import { Car } from "@/types/car";
@@ -36,7 +37,7 @@ export default function ProfilePage() {
         <ProfileHeader user={user ?? null} />
       </div>
 
-      <div className="md:col-span-2 bg-primary/5 rounded-lg p-4 border border-border">
+      <div className="md:col-span-2 bg-card rounded-lg p-4 border border-border">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <LuCar className="w-6 h-6 text-primary" />

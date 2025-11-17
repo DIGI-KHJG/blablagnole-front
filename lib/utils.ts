@@ -5,6 +5,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const formatDateShort = (date: string | Date) => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return dateObj.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+export const formatDateTime = (date: string | Date) => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return dateObj.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 /**
  * Génère une URL d'avatar aléatoire basée sur un prénom en utilisant DiceBear avec le style "Fun Emoji"
  * @param firstName - Le prénom à utiliser comme seed pour générer l'avatar

@@ -51,7 +51,7 @@ export default function SelectCarCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 sm:gap-4 p-4">
+      <div className="flex flex-1 flex-col gap-3 sm:gap-4 p-4 pl-0">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <h3 className="text-base font-bold text-foreground sm:text-lg">

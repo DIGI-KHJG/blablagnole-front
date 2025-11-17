@@ -19,6 +19,7 @@ export function BlablagnoleLogo({
         height={type === "full" ? 250 : 32}
         className={cn("object-contain", className)}
         alt="Blablagnole Logo"
+        loading="eager"
       />
     </Link>
   );

@@ -1,6 +1,7 @@
 "use client";
 import DashboardPageTitle from "@/components/shared/dashboard-page-title";
-import { CarCard, CarCardSkeleton } from "@/components/ui/car-card";
+import { CarCard } from "@/components/ui/car-card";
+import { CarCardSkeleton } from "@/components/ui/car-card-skeleton";
 import {
   useDeleteServiceCar,
   useGetServiceCars,
@@ -47,7 +48,11 @@ export default function ParcDeVehicules() {
       ></DashboardPageTitle>
 
       {isPending ? (
-        <CarCardSkeleton />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-h-[200px]">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <CarCardSkeleton key={index} />
+          ))}
+        </div>
       ) : serviceCars && serviceCars.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-h-[200px]">
           {serviceCars.map((serviceCar) => (

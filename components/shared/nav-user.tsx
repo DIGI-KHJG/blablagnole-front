@@ -83,7 +83,7 @@ export function NavUser({ user }: { user: User | null }) {
 
             <DropdownMenuGroup>
               <Link href="/dashboard/profile" className="cursor-pointer">
-                <DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
                   <MdAccountCircle className="size-5" />
                   Mon profil
                 </DropdownMenuItem>

@@ -35,8 +35,8 @@ export default function CarFormDialog({
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Modifier les informations de mon véhicule"
-              : "Renseignez les informations de mon véhicule"}
+              ? "Modifier les informations de votre véhicule"
+              : "Renseignez les informations de votre véhicule"}
           </DialogDescription>
         </DialogHeader>
         <CarForm initialData={initialData} onClose={onClose} />
