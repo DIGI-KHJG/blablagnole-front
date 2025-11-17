@@ -6,6 +6,9 @@ import { useDeleteUser } from "@/features/user/hooks";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
 
 export type Collaborateur = {
   id: number;
@@ -18,18 +21,7 @@ export type Collaborateur = {
 };
 
 export const columns: ColumnDef<Collaborateur>[] = [
-  {
-    accessorKey: "lastName",
-    header: "Nom",
-  },
-  {
-    accessorKey: "firstName",
-    header: "Prénom",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
+  // 👉 1. Photo
   {
     accessorKey: "profilePicture",
     header: "Photo",
@@ -50,6 +42,31 @@ export const columns: ColumnDef<Collaborateur>[] = [
     },
   },
 
+
+  {
+    accessorKey: "lastName",
+    header: "Nom",
+  },
+
+
+  {
+    accessorKey: "firstName",
+    header: "Prénom",
+  },
+
+  
+  {
+    accessorKey: "email",
+    header: "Email",
+  },
+
+  
+  {
+    accessorKey: "role",
+    header: "Role",
+  },
+
+
   {
     id: "actions",
     header: "Actions",
@@ -57,29 +74,47 @@ export const columns: ColumnDef<Collaborateur>[] = [
       const user = row.original;
       const [dialogOpen, setDialogOpen] = useState(false);
       const deleteUser = useDeleteUser();
+      const router = useRouter();
 
       return (
-        <>
+        <div className="flex gap-2">
+          {/* Bouton VOIR */}
+          <Button
+            variant="outline"
+            className="text-sm"
+            onClick={() => router.push(`/dashboard/collaborateurs/${user.id}`)}
+          >
+            Voir
+          </Button>
+
+          {/* Bouton SUPPRIMER */}
           <Button
             variant="destructive"
-            onClick={() => setDialogOpen(true)}
             className="text-sm"
+            onClick={() => setDialogOpen(true)}
           >
             Supprimer
           </Button>
 
+          {/* Popup de confirmation */}
           <DeleteConfirmationDialog
             showDeleteDialog={dialogOpen}
             setShowDeleteDialog={setDialogOpen}
             title="Supprimer un utilisateur"
-            description={`supprimer l'utilisateur ${user.firstName} ${user.lastName}`}
+      description={`supprimer l'utilisateur ${user.firstName} ${user.lastName}`}
             handleDelete={() => {
               deleteUser.mutate(user.id, {
-                onSuccess: () => setDialogOpen(false),
+                onSuccess: () => {
+                  toast.success(`Utilisateur "${user.firstName}" supprimé`);
+                  setDialogOpen(false);
+                },
+                onError: () => {
+                  toast.error("Erreur lors de la suppression");
+                },
               });
             }}
           />
-        </>
+        </div>
       );
     },
   },
