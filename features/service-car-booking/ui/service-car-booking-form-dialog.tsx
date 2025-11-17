@@ -13,12 +13,14 @@ interface ServiceCarBookingFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
   initialData?: ServiceCarBooking;
+  showStatusField?: boolean;
 }
 
 export default function ServiceCarBookingFormDialog({
   isOpen,
   onClose,
   initialData,
+  showStatusField = false,
 }: ServiceCarBookingFormDialogProps) {
   const isEditMode = !!initialData?.id;
   return (
@@ -39,6 +41,7 @@ export default function ServiceCarBookingFormDialog({
           initialData={initialData}
           onClose={onClose}
           isEditMode={isEditMode}
+          showStatusField={showStatusField}
         />
       </DialogContent>
     </Dialog>

@@ -11,7 +11,7 @@ import { Car } from "@/types/car";
 import { useRouter } from "next/navigation";
 
 import { useState } from "react";
-import { FaTruck } from "react-icons/fa";
+import { FaCar } from "react-icons/fa";
 import { toast } from "sonner";
 
 export default function ParcDeVehicules() {
@@ -42,7 +42,7 @@ export default function ParcDeVehicules() {
       <DashboardPageTitle
         title="Parc de véhicules"
         description="Gérez le parc de véhicules de l'entreprise"
-        icon={FaTruck}
+        icon={FaCar}
         buttonText="Ajouter un véhicule de service"
         onButtonClick={() => setIsFormDialogOpen(true)}
       ></DashboardPageTitle>
@@ -74,7 +74,7 @@ export default function ParcDeVehicules() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FaTruck className="w-12 h-12 text-muted-foreground mb-3 opacity-50" />
+          <FaCar className="w-12 h-12 text-muted-foreground mb-3 opacity-50" />
           <p className="text-sm text-muted-foreground">
             Aucun véhicule de service enregistré
           </p>

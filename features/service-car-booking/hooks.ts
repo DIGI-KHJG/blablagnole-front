@@ -2,6 +2,28 @@ import { ServiceCarBooking } from "@/types/service-car-booking";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ServiceCarBookingSchema } from "./schemas";
 
+export function useGetServiceCarBookings() {
+  return useQuery<ServiceCarBooking[]>({
+    queryKey: ["service-car-bookings"],
+    queryFn: async () => {
+      const res = await fetch("/api/service-car-bookings", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok)
+        throw new Error(
+          "Erreur lors de la récupération des réservations de véhicule de service"
+        );
+      const data = await res.json();
+      return data.content;
+    },
+    retry: false,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
+}
+
 export function useGetServiceCarBookingById(id?: string) {
   return useQuery<ServiceCarBooking>({
     queryKey: ["service-car-bookings", id],
@@ -64,6 +86,60 @@ export function useBookServiceCar() {
         throw new Error(
           error.message ||
             "Erreur lors de la réservation du véhicule de service"
+        );
+      }
+      return res.json() as Promise<ServiceCarBooking>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+    },
+  });
+}
+
+export function useCompleteServiceCarBooking() {
+  const qc = useQueryClient();
+  return useMutation<ServiceCarBooking, Error, number>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/service-car-bookings/${id}/complete`, {
+        method: "PATCH",
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({
+          message:
+            "Erreur lors de la complétion de la réservation de véhicule de service",
+        }));
+        throw new Error(
+          error.message ||
+            "Erreur lors de la complétion de la réservation de véhicule de service"
+        );
+      }
+      return res.json() as Promise<ServiceCarBooking>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+    },
+  });
+}
+
+export function useCancelServiceCarBooking() {
+  const qc = useQueryClient();
+  return useMutation<ServiceCarBooking, Error, number>({
+    mutationFn: async (id) => {
+      const res = await fetch(`/api/service-car-bookings/${id}/cancel`, {
+        method: "PATCH",
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({
+          message:
+            "Erreur lors de l'annulation de la réservation de véhicule de service",
+        }));
+        throw new Error(
+          error.message ||
+            "Erreur lors de l'annulation de la réservation de véhicule de service"
         );
       }
       return res.json() as Promise<ServiceCarBooking>;

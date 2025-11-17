@@ -100,9 +100,9 @@ export function ServiceCarBookingForm({
             control={form.control}
             name="status"
             render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
+              <Field data-invalid={fieldState.invalid} className="w-fit">
                 <FieldLabel htmlFor={field.name} className="text-md">
-                  Statut :
+                  Statut : <span className="text-red-500">*</span>
                 </FieldLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="w-full">
@@ -139,7 +139,7 @@ export function ServiceCarBookingForm({
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name} className="text-md">
-                  Du :
+                  Du : <span className="text-red-500">*</span>
                 </FieldLabel>
                 <InputDateTimeCalendar
                   value={field.value}
@@ -158,7 +158,7 @@ export function ServiceCarBookingForm({
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name} className="text-md">
-                  Au :
+                  Au : <span className="text-red-500">*</span>
                 </FieldLabel>
                 <InputDateTimeCalendar
                   value={field.value}

@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ServiceCarBookingDetailsSkeleton } from "@/components/ui/service-car-booking-details-skeleton";
 import {
   useCancelServiceCarBooking,
+  useCompleteServiceCarBooking,
+  useDeleteServiceCarBooking,
   useGetServiceCarBookingById,
 } from "@/features/service-car-booking/hooks";
 import ServiceCarBookingFormDialog from "@/features/service-car-booking/ui/service-car-booking-form-dialog";
@@ -29,19 +31,22 @@ import {
   Calendar,
   Edit,
   Leaf,
+  LucideCheckCircle2,
   Palette,
   Users,
 } from "lucide-react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { BsFuelPump } from "react-icons/bs";
+import { LuTrash2 } from "react-icons/lu";
 import { MdGarage } from "react-icons/md";
 import { TbCalendarCancel, TbLicense } from "react-icons/tb";
 import { toast } from "sonner";
 
-export default function ServiceCarBookingDetailsPage() {
+export default function ParcVehiculesLocationDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { data: serviceCarBooking, isPending } = useGetServiceCarBookingById(
@@ -49,21 +54,50 @@ export default function ServiceCarBookingDetailsPage() {
   );
 
   const {
+    mutate: deleteServiceCarBooking,
+    isPending: isDeletingServiceCarBooking,
+  } = useDeleteServiceCarBooking();
+  const {
+    mutate: completeServiceCarBooking,
+    isPending: isCompletingServiceCarBooking,
+  } = useCompleteServiceCarBooking();
+  const {
     mutate: cancelServiceCarBooking,
     isPending: isCancellingServiceCarBooking,
   } = useCancelServiceCarBooking();
 
+  const handleDeleteServiceCarBooking = async (id: number) => {
+    deleteServiceCarBooking(id, {
+      onSuccess: () => {
+        toast.success("Location annulée avec succès");
+        router.push("/dashboard/vehicules-de-services/mes-locations");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+  };
+
+  const handleCompleteServiceCarBooking = async (id: number) => {
+    completeServiceCarBooking(id, {
+      onSuccess: () => {
+        toast.success("Location marquée comme terminée avec succès");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+  };
+
   const handleCancelServiceCarBooking = async (id: number) => {
-    if (serviceCarBooking?.status === "CANCELLED") {
-      return;
-    } else {
-      cancelServiceCarBooking(id, {
-        onSuccess: () => {
-          toast.success("Location annulée avec succès");
-          setShowCancelDialog(false);
-        },
-      });
-    }
+    cancelServiceCarBooking(id, {
+      onSuccess: () => {
+        toast.success("Location annulée avec succès");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   };
 
   if (isPending) {
@@ -271,13 +305,50 @@ export default function ServiceCarBookingDetailsPage() {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-between gap-2">
                   {/* Boutons d'action */}
+                  <div className="flex  gap-3 pt-4 w-full">
+                    <Button
+                      onClick={() =>
+                        serviceCarBooking?.id &&
+                        handleCompleteServiceCarBooking(serviceCarBooking?.id)
+                      }
+                      className="flex-1"
+                      disabled={
+                        isPending ||
+                        isCompletingServiceCarBooking ||
+                        !serviceCarBooking?.id
+                      }
+                    >
+                      <LucideCheckCircle2 className="h-4 w-4 mr-2" />
+                      Marquer comme terminée
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        serviceCarBooking?.id &&
+                        handleCancelServiceCarBooking(serviceCarBooking?.id)
+                      }
+                      variant="secondary"
+                      className="flex-1"
+                      disabled={
+                        isPending ||
+                        isCancellingServiceCarBooking ||
+                        !serviceCarBooking?.id
+                      }
+                    >
+                      <TbCalendarCancel className="h-4 w-4 mr-2" />
+                      Annuler la location
+                    </Button>
+                  </div>
 
                   <div className="flex  gap-3 pt-4 w-full">
                     <Button
                       onClick={() => setShowEditDialog(true)}
                       variant="outline"
                       className="flex-1"
-                      disabled={isPending || !serviceCarBooking?.id}
+                      disabled={
+                        isPending ||
+                        isDeletingServiceCarBooking ||
+                        !serviceCarBooking?.id
+                      }
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Modifier les dates
@@ -287,24 +358,23 @@ export default function ServiceCarBookingDetailsPage() {
                       variant="destructive"
                       className="flex-1"
                       disabled={
-                        serviceCarBooking?.status === "CANCELLED" ||
                         isPending ||
-                        isCancellingServiceCarBooking ||
+                        isDeletingServiceCarBooking ||
                         !serviceCarBooking?.id
                       }
                     >
-                      <TbCalendarCancel className="h-4 w-4 mr-2" />
-                      {serviceCarBooking?.status === "CANCELLED"
-                        ? "Location annulée"
-                        : "Annuler la location"}
+                      <LuTrash2 className="h-4 w-4 mr-2" />
+                      Supprimer la location
                     </Button>
                   </div>
                 </CardContent>
               </Card>
+
               <ServiceCarBookingFormDialog
                 isOpen={showEditDialog}
                 onClose={() => setShowEditDialog(false)}
                 initialData={serviceCarBooking}
+                showStatusField={true}
               />
 
               <DeleteConfirmationDialog
@@ -312,10 +382,10 @@ export default function ServiceCarBookingDetailsPage() {
                 setShowDeleteDialog={setShowCancelDialog}
                 handleDelete={() =>
                   serviceCarBooking?.id &&
-                  handleCancelServiceCarBooking(serviceCarBooking?.id)
+                  handleDeleteServiceCarBooking(serviceCarBooking?.id)
                 }
-                title="Annuler la location"
-                description={`annuler la location de ${serviceCarBooking?.serviceCar?.brand} ${serviceCarBooking?.serviceCar?.model} (${serviceCarBooking?.serviceCar?.registrationPlate})`}
+                title="Supprimer la location"
+                description={`supprimer la location de ${serviceCarBooking?.serviceCar?.brand} ${serviceCarBooking?.serviceCar?.model} (${serviceCarBooking?.serviceCar?.registrationPlate}) pour le conducteur ${serviceCarBooking?.driver?.firstName} ${serviceCarBooking?.driver?.lastName}`}
               />
             </CardContent>
           </Card>

@@ -84,6 +84,16 @@ const routeConfig: Record<
     icon: FaTruck,
     clickable: true,
   },
+  "/dashboard/parc-de-vehicules/vehicules": {
+    label: "Véhicules",
+    icon: FaCar,
+    clickable: true,
+  },
+  "/dashboard/parc-de-vehicules/locations": {
+    label: "Locations",
+    icon: FaAddressCard,
+    clickable: true,
+  },
   "/dashboard/profile": {
     label: "Profil",
     icon: FaUser,
