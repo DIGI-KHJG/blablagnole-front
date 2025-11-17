@@ -7,6 +7,7 @@ import { useGetCurrentUser } from "@/features/auth/hooks";
 import { useDeleteCar, useGetDriverCarById } from "@/features/car/hooks";
 import CarFormDialog from "@/features/car/ui/car-form-dialog";
 import { ProfileHeader } from "@/features/profile/ui/profile-header";
+import { ProfileHeaderSkeleton } from "@/features/profile/ui/profile-header-skeleton";
 import { Car } from "@/types/car";
 import { useState } from "react";
 import { LuCar, LuPlus } from "react-icons/lu";
@@ -16,7 +17,7 @@ export default function ProfilePage() {
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
 
-  const { data: user } = useGetCurrentUser();
+  const { data: user, isPending: isPendingUser } = useGetCurrentUser();
   const { data: car, isPending } = useGetDriverCarById(user?.id);
   const { mutate: deleteCar } = useDeleteCar();
 
@@ -34,7 +35,11 @@ export default function ProfilePage() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-8 h-[88vh]">
       <div className="md:col-span-3 border border-border rounded-lg p-4">
-        <ProfileHeader user={user ?? null} />
+        {isPendingUser ? (
+          <ProfileHeaderSkeleton />
+        ) : (
+          <ProfileHeader user={user ?? null} />
+        )}
       </div>
 
       <div className="md:col-span-2 bg-card rounded-lg p-4 border border-border">

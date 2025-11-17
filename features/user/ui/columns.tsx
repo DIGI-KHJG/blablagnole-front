@@ -1,119 +1,133 @@
 "use client";
 
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDeleteUser } from "@/features/user/hooks";
+import { getRoleColor, getRoleLabel, User } from "@/types/user";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
+interface ActionsCellProps {
+  user: User;
+}
 
-export type Collaborateur = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  full_name: string;
-  email: string;
-  profilePicture: string | null;
-  role: string;
-};
+function ActionsCell({ user }: ActionsCellProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const deleteUser = useDeleteUser();
+  const router = useRouter();
 
-export const columns: ColumnDef<Collaborateur>[] = [
-  // 👉 1. Photo
+  const handleDeleteUser = (id: number) => {
+    deleteUser.mutate(id, {
+      onSuccess: () => {
+        toast.success(`Utilisateur "${user.firstName}" supprimé`);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Button
+        variant="outline"
+        className="text-sm"
+        onClick={() => router.push(`/dashboard/collaborateurs/${user.id}`)}
+      >
+        Voir
+      </Button>
+
+      <Button
+        variant="destructive"
+        className="text-sm"
+        onClick={() => setDialogOpen(true)}
+      >
+        Supprimer
+      </Button>
+
+      <DeleteConfirmationDialog
+        showDeleteDialog={dialogOpen}
+        setShowDeleteDialog={setDialogOpen}
+        title="Supprimer un utilisateur"
+        description={`supprimer l'utilisateur ${user.firstName} ${user.lastName}`}
+        handleDelete={() => user.id && handleDeleteUser(user.id)}
+      />
+    </div>
+  );
+}
+
+export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "profilePicture",
-    header: "Photo",
+    header: () => <div className="text-center">Photo</div>,
     cell: ({ row }) => {
       const url = row.original.profilePicture;
 
-      return url ? (
-        <Image
-          width={40}
-          height={40}
-          src={url}
-          alt={`${row.original.firstName} ${row.original.lastName}`}
-          className="h-10 w-10 rounded-full object-cover"
-        />
-      ) : (
-        <span className="text-gray-400">-</span>
+      return (
+        <div className="flex justify-center">
+          {url ? (
+            <Image
+              width={40}
+              height={40}
+              src={url}
+              alt={`${row.original.firstName} ${row.original.lastName}`}
+              className="h-10 w-10 rounded-full object-cover"
+            />
+          ) : (
+            <span className="text-gray-400">-</span>
+          )}
+        </div>
       );
     },
   },
 
-
   {
     accessorKey: "lastName",
-    header: "Nom",
+    header: () => <div className="text-center">Nom</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("lastName")}</div>
+    ),
   },
-
 
   {
     accessorKey: "firstName",
-    header: "Prénom",
+    header: () => <div className="text-center">Prénom</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("firstName")}</div>
+    ),
   },
 
-  
   {
     accessorKey: "email",
-    header: "Email",
+    header: () => <div className="text-center">Email</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("email")}</div>
+    ),
   },
 
-  
   {
     accessorKey: "role",
-    header: "Role",
+    header: () => <div className="text-center">Role</div>,
+    cell: ({ row }) => (
+      <Badge
+        className={`${getRoleColor(row.getValue("role"))} text-white text-sm`}
+      >
+        {getRoleLabel(row.getValue("role"))}
+      </Badge>
+    ),
   },
-
 
   {
     id: "actions",
-    header: "Actions",
+    header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) => {
-      const user = row.original;
-      const [dialogOpen, setDialogOpen] = useState(false);
-      const deleteUser = useDeleteUser();
-      const router = useRouter();
-
       return (
-        <div className="flex gap-2">
-          {/* Bouton VOIR */}
-          <Button
-            variant="outline"
-            className="text-sm"
-            onClick={() => router.push(`/dashboard/collaborateurs/${user.id}`)}
-          >
-            Voir
-          </Button>
-
-          {/* Bouton SUPPRIMER */}
-          <Button
-            variant="destructive"
-            className="text-sm"
-            onClick={() => setDialogOpen(true)}
-          >
-            Supprimer
-          </Button>
-
-          {/* Popup de confirmation */}
-          <DeleteConfirmationDialog
-            showDeleteDialog={dialogOpen}
-            setShowDeleteDialog={setDialogOpen}
-            title="Supprimer un utilisateur"
-      description={`supprimer l'utilisateur ${user.firstName} ${user.lastName}`}
-            handleDelete={() => {
-              deleteUser.mutate(user.id, {
-                onSuccess: () => {
-                  toast.success(`Utilisateur "${user.firstName}" supprimé`);
-                  setDialogOpen(false);
-                },
-                onError: () => {
-                  toast.error("Erreur lors de la suppression");
-                },
-              });
-            }}
-          />
+        <div className="flex justify-center">
+          <ActionsCell user={row.original} />
         </div>
       );
     },

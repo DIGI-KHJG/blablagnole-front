@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { User } from "@/types/user";
 import {
   ColumnDef,
   flexRender,
@@ -15,13 +16,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-}: {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-}) {
+export type UsersDataTableProps = {
+  columns: ColumnDef<User>[];
+  data: User[];
+};
+
+export function UsersDataTable({ columns, data }: UsersDataTableProps) {
   const table = useReactTable({
     data,
     columns,
@@ -35,7 +35,7 @@ export function DataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} className="text-center">
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
@@ -50,7 +50,7 @@ export function DataTable<TData, TValue>({
           {table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell key={cell.id} className="text-center">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
