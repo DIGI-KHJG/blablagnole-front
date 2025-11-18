@@ -31,6 +31,10 @@ const data = {
       icon: IoCarSport,
       items: [
         {
+          title: "Liste des covoiturages",
+          url: "/dashboard/covoiturages",
+        },
+        {
           title: "Mes annonces",
           url: "/dashboard/covoiturages/mes-annonces",
         },

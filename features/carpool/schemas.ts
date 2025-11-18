@@ -1,22 +1,24 @@
+import { addressSchema } from "@/features/addresses/schemas";
 import { z } from "zod";
 
 export const carpoolSchema = z.object({
-  id: z.string().optional(),
-  driverId: z.string({ error: "Le conducteur est requis" }),
-  departure_date: z.date({
-    error: "La date et l'heure de départ sont requises",
-  }),
-  departure_location: z.string({ error: "L'adresse de départ est requise" }),
-  arrival_location: z.string({ error: "L'adresse d'arrivée est requise" }),
-  duration: z.number({ error: "La durée du trajet est requise" }),
-  available_seats: z.number({
+  id: z.number().optional(),
+  driverId: z.number({ error: "Le conducteur est requis" }),
+  carId: z.number({ error: "Le véhicule est requis" }),
+  fromAddress: addressSchema,
+  toAddress: addressSchema,
+  distanceKm: z.number({ error: "La distance du trajet est requise" }),
+  durationMin: z.number({ error: "La durée du trajet est requise" }),
+  seatsTotal: z.number({
     error: "Le nombre de places disponibles est requise",
   }),
-  distance: z.number({ error: "La distance du trajet est requise" }),
-  carId: z.string({ error: "Le véhicule est requis" }),
-  carpooling_status: z
-    .enum(["OPEN", "CLOSED", "CANCELLED", "COMPLETED"])
-    .default("OPEN"),
+  seatsRemaining: z.number({
+    error: "Le nombre de places disponibles est requise",
+  }),
+  departureAt: z.date({
+    error: "La date et l'heure de départ sont requises",
+  }),
+  status: z.enum(["OPEN", "FULL", "CANCELLED", "COMPLETED"]).default("OPEN"),
 });
 
 export type CarpoolSchema = z.input<typeof carpoolSchema>;

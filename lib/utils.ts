@@ -5,8 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatDateShort = (date: string | Date) => {
+export const formatDateShort = (date: string | Date | null | undefined) => {
+  if (!date) return "N/A";
   const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return "N/A";
   return dateObj.toLocaleDateString("fr-FR", {
     day: "2-digit",
     month: "2-digit",
@@ -14,8 +16,10 @@ export const formatDateShort = (date: string | Date) => {
   });
 };
 
-export const formatDateTime = (date: string | Date) => {
+export const formatDateTime = (date: string | Date | null | undefined) => {
+  if (!date) return "N/A";
   const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return "N/A";
   return dateObj.toLocaleString("fr-FR", {
     day: "2-digit",
     month: "2-digit",
@@ -25,16 +29,23 @@ export const formatDateTime = (date: string | Date) => {
   });
 };
 
-/**
- * Génère une URL d'avatar aléatoire basée sur un prénom en utilisant DiceBear avec le style "Fun Emoji"
- * @param firstName - Le prénom à utiliser comme seed pour générer l'avatar
- * @returns L'URL de l'avatar généré
- */
-export function generateAvatarUrl(firstName: string): string {
-  // Utilise le firstName comme seed pour générer un avatar cohérent
-  // Ajoute un timestamp pour rendre chaque génération unique si nécessaire
-  const seed = firstName.toLowerCase().trim();
-  return `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${encodeURIComponent(
-    seed
-  )}`;
-}
+export const formatDuration = (minutes: number) => {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0) {
+    return `${hours}h${mins > 0 ? `${mins}min` : ""}`;
+  }
+  return `${mins}min`;
+};
+
+export const formatDateTimeShort = (date: string | Date | null | undefined) => {
+  if (!date) return "N/A";
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return "N/A";
+  const dateStr = formatDateShort(dateObj);
+  const time = dateObj.toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${dateStr} à ${time}`;
+};

@@ -6,18 +6,20 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import InputCarSelect from "@/components/ui/input-car-select";
 import { InputDateTime } from "@/components/ui/input-date-time";
 import InputNumber from "@/components/ui/input-number";
 import InputTime from "@/components/ui/input-time";
 import { Spinner } from "@/components/ui/spinner";
+import { AddressForm } from "@/features/addresses/ui/address-form";
 import { useGetCurrentUser } from "@/features/auth/hooks";
 import { useGetDriverCarById } from "@/features/car/hooks";
+import { useAddCarpool, useEditCarpool } from "@/features/carpool/hooks";
 import { CarpoolSchema, carpoolSchema } from "@/features/carpool/schemas";
+import { Carpool } from "@/types/carpool";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 interface CarpoolFormProps {
   initialData?: CarpoolSchema;
@@ -25,89 +27,99 @@ interface CarpoolFormProps {
 }
 
 export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
-  const [isPending, setIsPending] = useState(false);
   const { data: currentUser } = useGetCurrentUser();
-
+  const { mutate: addCarpool, isPending } = useAddCarpool();
+  const { mutate: editCarpool, isPending: isEditingPending } = useEditCarpool();
   const { data: cars } = useGetDriverCarById(currentUser?.id);
+
+  const carId = initialData?.carId ?? (initialData as Carpool)?.car?.id ?? 0;
 
   const form = useForm<CarpoolSchema>({
     resolver: zodResolver(carpoolSchema),
     defaultValues: {
-      departure_date: initialData?.departure_date || new Date(),
-      departure_location: initialData?.departure_location || "",
-      arrival_location: initialData?.arrival_location || "",
-      duration: initialData?.duration || 0,
-      available_seats: initialData?.available_seats || 0,
-      distance: initialData?.distance || 0,
-      carId: initialData?.carId || "",
-      carpooling_status: initialData?.carpooling_status || "OPEN",
+      id: initialData?.id,
+      driverId: initialData?.driverId ?? currentUser?.id,
+      carId: carId,
+      fromAddress: initialData?.fromAddress ?? {
+        street: "",
+        city: "",
+        postalCode: "",
+        country: "",
+      },
+      toAddress: initialData?.toAddress ?? {
+        street: "",
+        city: "",
+        postalCode: "",
+        country: "",
+      },
+      distanceKm: initialData?.distanceKm ?? 0,
+      durationMin: initialData?.durationMin ?? 0,
+      seatsTotal: initialData?.seatsTotal ?? 0,
+      seatsRemaining: initialData?.seatsRemaining ?? 0,
+      departureAt: initialData?.departureAt
+        ? typeof initialData.departureAt === "string"
+          ? new Date(initialData.departureAt)
+          : initialData.departureAt
+        : new Date(),
+      status: initialData?.status ?? "OPEN",
     },
   });
 
   const onSubmit = (data: CarpoolSchema) => {
-    setIsPending(true);
-    console.log(data);
-    setIsPending(false);
+    if (initialData) {
+      editCarpool(data, {
+        onSuccess: () => {
+          form.reset();
+          onClose();
+          toast.success("Covoiturage modifié avec succès");
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      });
+    } else {
+      addCarpool(data, {
+        onSuccess: () => {
+          form.reset();
+          onClose();
+          toast.success("Covoiturage ajouté avec succès");
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      });
+    }
   };
   return (
-    <form id="carpool-form" onSubmit={form.handleSubmit(onSubmit)}>
+    <form
+      id="carpool-form"
+      key={initialData?.id ?? "new"}
+      onSubmit={form.handleSubmit(onSubmit)}
+    >
       <FieldGroup>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-4">
             {/* Adresse de départ */}
-            <Controller
+            <AddressForm
               control={form.control}
-              name="departure_location"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Adresse de départ<span className="text-red-500">*</span>
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    type="text"
-                    placeholder="Adresse de départ"
-                    required
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              fieldName="fromAddress"
+              title="Adresse de départ"
             />
 
             {/* Adresse d'arrivée */}
-            <Controller
+            <AddressForm
               control={form.control}
-              name="arrival_location"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>
-                    Adresse d&apos;arrivée
-                    <span className="text-red-500">*</span>
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    aria-invalid={fieldState.invalid}
-                    type="text"
-                    placeholder="Adresse d'arrivée"
-                    required
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              fieldName="toAddress"
+              title="Adresse d'arrivée"
             />
+          </div>
 
+          <div className="space-y-6">
             <div className="flex items-center gap-2">
               {/* Date et heure de départ */}
               <Controller
                 control={form.control}
-                name="departure_date"
+                name="departureAt"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel id={`${field.name}-label`} htmlFor={field.name}>
@@ -129,7 +141,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
               {/* Durée du trajet */}
               <Controller
                 control={form.control}
-                name="duration"
+                name="durationMin"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel id={`${field.name}-label`} htmlFor={field.name}>
@@ -156,7 +168,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
               {/* Places disponibles */}
               <Controller
                 control={form.control}
-                name="available_seats"
+                name="seatsTotal"
                 render={({ field, fieldState }) => (
                   <Field
                     data-invalid={fieldState.invalid}
@@ -186,7 +198,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
               {/* Distance du trajet */}
               <Controller
                 control={form.control}
-                name="distance"
+                name="distanceKm"
                 render={({ field, fieldState }) => (
                   <Field
                     data-invalid={fieldState.invalid}
@@ -213,25 +225,46 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
                 )}
               />
             </div>
-          </div>
 
-          <div>
             {/* Mon véhicule */}
             <Controller
               control={form.control}
               name="carId"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel id={`${field.name}-label`} htmlFor={field.name}>
-                    Mon véhicule
-                    <span className="text-red-500">*</span>
-                  </FieldLabel>
-                  <InputCarSelect id={field.name} cars={cars ?? []} />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              render={({ field, fieldState }) => {
+                const handleCarChange = (carId: number) => {
+                  field.onChange(carId);
+
+                  // Préremplir seatsTotal et seatsRemaining quand un véhicule est sélectionné
+                  if (cars && cars.length > 0) {
+                    const selectedCar = cars.find((car) => car.id === carId);
+                    if (selectedCar && selectedCar.seats) {
+                      const totalSeats = selectedCar.seats - 1;
+                      form.setValue("seatsTotal", totalSeats);
+                      form.setValue("seatsRemaining", totalSeats);
+                    }
+                  }
+                };
+
+                return (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel id={`${field.name}-label`} htmlFor={field.name}>
+                      Mon véhicule
+                      <span className="text-red-500">*</span>
+                    </FieldLabel>
+                    <InputCarSelect
+                      id={field.name}
+                      cars={cars ?? []}
+                      value={field.value}
+                      onChange={handleCarChange}
+                      onBlur={field.onBlur}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                );
+              }}
             />
           </div>
         </div>
@@ -242,7 +275,13 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
               Annuler
             </Button>
             <Button type="submit" form="carpool-form">
-              {isPending ? <Spinner className="w-4 h-4" /> : "Publier"}
+              {isPending || isEditingPending ? (
+                <Spinner className="w-4 h-4" />
+              ) : initialData ? (
+                "Modifier"
+              ) : (
+                "Publier"
+              )}
             </Button>
           </div>
         </Field>

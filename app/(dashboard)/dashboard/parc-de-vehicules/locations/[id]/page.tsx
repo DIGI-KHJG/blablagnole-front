@@ -331,11 +331,14 @@ export default function ParcVehiculesLocationDetails() {
                       disabled={
                         isPending ||
                         isCancellingServiceCarBooking ||
-                        !serviceCarBooking?.id
+                        !serviceCarBooking?.id ||
+                        serviceCarBooking?.status === "CANCELLED"
                       }
                     >
                       <TbCalendarCancel className="h-4 w-4 mr-2" />
-                      Annuler la location
+                      {serviceCarBooking?.status === "CANCELLED"
+                        ? "Location annulée"
+                        : "Annuler la location"}
                     </Button>
                   </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { Role, User } from "@/types/user";
+import { RegisterSchema } from "@/features/auth/schemas";
+import { User } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useGetCurrentUser() {
@@ -23,19 +24,8 @@ export function useGetCurrentUser() {
 
 export function useRegister() {
   const qc = useQueryClient();
-  return useMutation<
-    User,
-    Error,
-    {
-      firstName: string;
-      lastName: string;
-      email: string;
-      password: string;
-      role: Role;
-      profilePicture: string;
-    }
-  >({
-    mutationFn: async (input) => {
+  return useMutation<User, Error, RegisterSchema>({
+    mutationFn: async (input: RegisterSchema) => {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         credentials: "include",

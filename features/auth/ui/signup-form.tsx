@@ -15,7 +15,6 @@ import InputPasswordStrength from "@/components/ui/input-password-strength";
 import { Spinner } from "@/components/ui/spinner";
 import { useRegister } from "@/features/auth/hooks";
 import { RegisterSchema, registerSchema } from "@/features/auth/schemas";
-import { generateAvatarUrl } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,25 +33,27 @@ export function SignupForm() {
       email: "",
       password: "",
       passwordConfirmation: "",
-      role: "ADMIN",
+      role: "COLLABORATOR",
       profilePicture: "",
     },
   });
 
   const onSubmit = (data: RegisterSchema) => {
+    const encodedFirstName = encodeURIComponent(
+      data.firstName.trim().toLowerCase()
+    );
     const formData = {
       ...data,
-      profilePicture: generateAvatarUrl(data.firstName),
+      profilePicture: `https://api.dicebear.com/7.x/fun-emoji/svg?seed=${encodedFirstName}`,
     };
-
-    console.log(formData);
 
     register(formData, {
       onSuccess: () => {
         router.push("/dashboard");
       },
-      onError: () => {
-        toast.error("Inscription échouée");
+      onError: (error) => {
+        console.error("Erreur d'inscription:", error);
+        toast.error(error.message || "Inscription échouée");
       },
     });
   };

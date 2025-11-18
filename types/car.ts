@@ -27,7 +27,8 @@ export type CarCategory =
   | "LARGE_SEDAN"
   | "SUV"
   | "OFF_ROAD"
-  | "PICKUP";
+  | "PICKUP"
+  | "SPORT";
 
 export const getMotorisationLabel = (motorisation?: CarMotorisation) => {
   const labels: Record<CarMotorisation, string> = {
@@ -66,6 +67,7 @@ export const getCategoryLabel = (category?: CarCategory) => {
     SUV: "SUV",
     OFF_ROAD: "Tout-terrain",
     PICKUP: "Pick-ups",
+    SPORT: "Sport",
   };
   return category ? labels[category] : "";
 };

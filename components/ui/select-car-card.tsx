@@ -25,6 +25,7 @@ export default function SelectCarCard({
 }: CarCardProps) {
   return (
     <Button
+      type="button"
       onClick={onClick}
       variant="outline"
       className={cn(

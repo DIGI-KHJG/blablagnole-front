@@ -91,7 +91,9 @@ export function useBookServiceCar() {
       return res.json() as Promise<ServiceCarBooking>;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+      qc.invalidateQueries({
+        queryKey: ["service-car-bookings"],
+      });
     },
   });
 }
@@ -118,7 +120,9 @@ export function useCompleteServiceCarBooking() {
       return res.json() as Promise<ServiceCarBooking>;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+      qc.invalidateQueries({
+        queryKey: ["service-car-bookings"],
+      });
     },
   });
 }
@@ -145,7 +149,9 @@ export function useCancelServiceCarBooking() {
       return res.json() as Promise<ServiceCarBooking>;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+      qc.invalidateQueries({
+        queryKey: ["service-car-bookings"],
+      });
     },
   });
 }
@@ -174,7 +180,9 @@ export function useEditServiceCarBooking() {
       return res.json() as Promise<ServiceCarBooking>;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+      qc.invalidateQueries({
+        queryKey: ["service-car-bookings"],
+      });
     },
   });
 }
@@ -200,7 +208,9 @@ export function useDeleteServiceCarBooking() {
       }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
+      qc.invalidateQueries({
+        queryKey: ["service-car-bookings", "service-cars"],
+      });
     },
   });
 }

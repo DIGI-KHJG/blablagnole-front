@@ -36,10 +36,11 @@ export function InputDateTime({
   const fieldId = id || generatedId;
   const labelId = ariaLabelledBy || `${fieldId}-label`;
 
-  // Extraire la date et l'heure de la valeur (copie pour le calendrier)
+  // Extraire la date et l'heure de la valeur
   const dateOnly = value
     ? (() => {
-        const date = new Date(value);
+        const date = value instanceof Date ? new Date(value) : new Date(value);
+        if (isNaN(date.getTime())) return undefined;
         date.setHours(0, 0, 0, 0);
         return date;
       })()
@@ -48,8 +49,11 @@ export function InputDateTime({
   // Formater l'heure en HH:MM (sans secondes)
   const formatTime = (date: Date | undefined): string => {
     if (!date) return "";
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
+    // S'assurer que date est bien un objet Date valide
+    const dateObj = date instanceof Date ? date : new Date(date);
+    if (isNaN(dateObj.getTime())) return "";
+    const hours = String(dateObj.getHours()).padStart(2, "0");
+    const minutes = String(dateObj.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   };
 
@@ -64,9 +68,18 @@ export function InputDateTime({
 
     if (value) {
       // Si une valeur existe, préserver l'heure
-      const newDate = new Date(selectedDate);
-      newDate.setHours(value.getHours(), value.getMinutes(), 0, 0);
-      onChange?.(newDate);
+      const valueDate = value instanceof Date ? value : new Date(value);
+      if (!isNaN(valueDate.getTime())) {
+        const newDate = new Date(selectedDate);
+        newDate.setHours(valueDate.getHours(), valueDate.getMinutes(), 0, 0);
+        onChange?.(newDate);
+      } else {
+        // Si la valeur n'est pas une date valide, utiliser l'heure actuelle
+        const newDate = new Date(selectedDate);
+        const now = new Date();
+        newDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
+        onChange?.(newDate);
+      }
     } else {
       // Si pas de valeur, créer une nouvelle date avec l'heure actuelle
       const newDate = new Date(selectedDate);

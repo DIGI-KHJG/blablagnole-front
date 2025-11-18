@@ -25,10 +25,7 @@ import { IoCarSport } from "react-icons/io5";
 import { MdOutlinePayments } from "react-icons/md";
 import { PiCardsFill } from "react-icons/pi";
 
-const nonClickableRoutes = [
-  "/dashboard/covoiturages",
-  "/dashboard/vehicules-de-services",
-];
+const nonClickableRoutes = ["/dashboard/vehicules-de-services"];
 
 const routeConfig: Record<
   string,
@@ -47,7 +44,7 @@ const routeConfig: Record<
   "/dashboard/covoiturages": {
     label: "Covoiturages",
     icon: IoCarSport,
-    clickable: false,
+    clickable: true,
   },
   "/dashboard/covoiturages/mes-annonces": {
     label: "Mes annonces",

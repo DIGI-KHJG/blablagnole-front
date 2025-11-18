@@ -5,14 +5,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CarpoolSchema } from "@/features/carpool/schemas";
 import { CarpoolForm } from "@/features/carpool/ui/carpool-form";
+import { Carpool } from "@/types/carpool";
 import { IoCarSport } from "react-icons/io5";
 
 interface CarpoolFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: CarpoolSchema;
+  initialData?: Carpool;
 }
 
 export default function CarpoolFormDialog({
