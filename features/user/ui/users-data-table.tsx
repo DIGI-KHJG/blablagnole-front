@@ -21,6 +21,11 @@ export type UsersDataTableProps = {
   data: User[];
 };
 
+/**
+ * Tableau de données utilisateurs (colonnes configurables via TanStack Table).
+ * @param columns Définition des colonnes.
+ * @param data Liste des utilisateurs à afficher.
+ */
 export function UsersDataTable({ columns, data }: UsersDataTableProps) {
   const table = useReactTable({
     data,

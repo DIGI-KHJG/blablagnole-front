@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** Valide les informations d'un véhicule personnel. */
 export const carSchema = z.object({
   id: z.number().optional(),
   driverId: z.number({ error: "Veuillez sélectionner le conducteur" }),
@@ -18,4 +19,5 @@ export const carSchema = z.object({
   imageUrl: z.url({ error: "Veuillez saisir l'URL de l'image" }),
 });
 
+/** Type utilisé pour saisir un véhicule personnel dans les formulaires. */
 export type CarSchema = z.input<typeof carSchema>;

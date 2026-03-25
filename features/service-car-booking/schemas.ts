@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** Valide les informations d'une réservation de véhicule de service. */
 export const serviceCarBookingSchema = z
   .object({
     id: z.number().optional(),
@@ -42,4 +43,5 @@ export const serviceCarBookingSchema = z
     path: ["endAt"],
   });
 
+/** Type utilisé pour saisir une réservation de véhicule de service. */
 export type ServiceCarBookingSchema = z.input<typeof serviceCarBookingSchema>;

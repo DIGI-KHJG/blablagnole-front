@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+/** Formulaire de connexion (email, mot de passe) avec redirection après succès. */
 export function LoginForm() {
   const { mutate: login, isPending } = useLogin();
   const router = useRouter();
@@ -34,7 +35,7 @@ export function LoginForm() {
   const onSubmit = (data: LoginSchema) => {
     login(data, {
       onSuccess: () => {
-        router.push("/dashboard");
+        router.push("/");
       },
       onError: () => {
         toast.error("Connexion échouée");

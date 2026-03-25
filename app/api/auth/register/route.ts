@@ -1,9 +1,11 @@
-import { registerSchema } from "@/features/auth/schemas";
+import { registerBodySchema } from "@/features/auth/schemas";
 import { proxyToSpring } from "@/lib/api/proxyToSpring";
 import { route } from "@/lib/api/zodRoute";
 
-const registerBodySchema = registerSchema.omit({ passwordConfirmation: true });
-
+/**
+ * Crée un nouvel utilisateur.
+ * La requête est transmise au backend.
+ */
 export const POST = route
   .body(registerBodySchema)
   .handler(async (request, { body }) => {

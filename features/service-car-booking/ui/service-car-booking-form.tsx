@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import { useGetCurrentUser } from "@/features/auth/hooks";
 import {
   useBookServiceCar,
   useEditServiceCarBooking,
+  useGetServiceCarBookings,
 } from "@/features/service-car-booking/hooks";
 import { Car } from "@/types/car";
 import {
@@ -33,6 +35,19 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { serviceCarBookingSchema, ServiceCarBookingSchema } from "../schemas";
 
+/** Retourne la date à minuit (début de journée). */
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/** Indique si la date est comprise entre rangeStart et rangeEnd (inclus). */
+function isDateInRange(date: Date, rangeStart: Date, rangeEnd: Date): boolean {
+  const day = startOfDay(date).getTime();
+  const start = startOfDay(rangeStart).getTime();
+  const end = startOfDay(rangeEnd).getTime();
+  return day >= start && day <= end;
+}
+
 interface ServiceCarBookingFormProps {
   initialData?: ServiceCarBooking;
   serviceCar?: Car;
@@ -41,6 +56,15 @@ interface ServiceCarBookingFormProps {
   showStatusField?: boolean;
 }
 
+/**
+ * Formulaire de réservation ou modification d’un véhicule de service (dates, créneau, statut optionnel).
+ * Gère les conflits de dates avec les réservations existantes.
+ * @param initialData Réservation existante en mode édition (optionnel).
+ * @param serviceCar Véhicule concerné (optionnel, pour affichage ou contraintes).
+ * @param isEditMode Si vrai, utilise la mutation de modification au lieu de création.
+ * @param onClose Callback appelé à la fermeture ou après succès.
+ * @param showStatusField Si vrai, affiche le champ statut (pour les admins).
+ */
 export function ServiceCarBookingForm({
   initialData,
   serviceCar,
@@ -50,10 +74,34 @@ export function ServiceCarBookingForm({
 }: ServiceCarBookingFormProps) {
   const router = useRouter();
   const { data: currentUser } = useGetCurrentUser();
+  const { data: allBookings = [] } = useGetServiceCarBookings();
   const { mutate: bookServiceCar, isPending: isBookingPending } =
     useBookServiceCar();
   const { mutate: editServiceCarBooking, isPending: isEditingPending } =
     useEditServiceCarBooking();
+
+  const serviceCarId = serviceCar?.id ?? initialData?.serviceCar?.id;
+  const disabledMatcher = useMemo(() => {
+    const startOfToday = startOfDay(new Date());
+    const pastDatesMatcher = { before: startOfToday };
+    if (!serviceCarId) {
+      return pastDatesMatcher;
+    }
+    const otherBookings = allBookings.filter(
+      (b) =>
+        (b.serviceCarId === serviceCarId ||
+          b.serviceCar?.id === serviceCarId) &&
+        b.status !== "CANCELLED" &&
+        (isEditMode ? b.id !== initialData?.id : true),
+    );
+    const reservedRanges = otherBookings.map((b) => ({
+      start: new Date(b.startAt),
+      end: new Date(b.endAt),
+    }));
+    const reservedMatcher = (date: Date) =>
+      reservedRanges.some((r) => isDateInRange(date, r.start, r.end));
+    return [pastDatesMatcher, reservedMatcher];
+  }, [serviceCarId, allBookings, isEditMode, initialData?.id]);
 
   const form = useForm<ServiceCarBookingSchema>({
     resolver: zodResolver(serviceCarBookingSchema),
@@ -144,6 +192,7 @@ export function ServiceCarBookingForm({
                 <InputDateTimeCalendar
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={disabledMatcher}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -163,6 +212,7 @@ export function ServiceCarBookingForm({
                 <InputDateTimeCalendar
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={disabledMatcher}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />

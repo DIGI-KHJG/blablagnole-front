@@ -17,15 +17,23 @@ import { useGetDriverCarById } from "@/features/car/hooks";
 import { useAddCarpool, useEditCarpool } from "@/features/carpool/hooks";
 import { CarpoolSchema, carpoolSchema } from "@/features/carpool/schemas";
 import { Carpool } from "@/types/carpool";
+import { getRoute } from "@/lib/routing/osrm";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 interface CarpoolFormProps {
-  initialData?: CarpoolSchema;
+  initialData?: CarpoolSchema | Carpool;
   onClose: () => void;
 }
 
+/**
+ * Formulaire de création ou modification d’un covoiturage (trajet, véhicule, places, horaire).
+ * Calcule distance et durée via OSRM si départ et arrivée ont des coordonnées.
+ * @param initialData Données initiales en mode édition (optionnel).
+ * @param onClose Callback appelé à la fermeture ou après succès.
+ */
 export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
   const { data: currentUser } = useGetCurrentUser();
   const { mutate: addCarpool, isPending } = useAddCarpool();
@@ -33,6 +41,16 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
   const { data: cars } = useGetDriverCarById(currentUser?.id);
 
   const carId = initialData?.carId ?? (initialData as Carpool)?.car?.id ?? 0;
+
+  const [fromCoords, setFromCoords] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
+  const [toCoords, setToCoords] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
+  const [routeLoading, setRouteLoading] = useState(false);
 
   const form = useForm<CarpoolSchema>({
     resolver: zodResolver(carpoolSchema),
@@ -64,6 +82,25 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
       status: initialData?.status ?? "OPEN",
     },
   });
+
+  const fetchAndSetRoute = (
+    origin: { lat: number; lon: number },
+    destination: { lat: number; lon: number }
+  ) => {
+    setRouteLoading(true);
+    getRoute(origin, destination)
+      .then((r) => {
+        form.setValue("distanceKm", r.distanceKm);
+        form.setValue("durationMin", r.durationMin);
+      })
+      .catch((err) => {
+        toast.error(
+          err?.message ??
+            "Impossible de calculer l'itinéraire. Saisissez la distance et la durée."
+        );
+      })
+      .finally(() => setRouteLoading(false));
+  };
 
   const onSubmit = (data: CarpoolSchema) => {
     if (initialData) {
@@ -104,6 +141,12 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
               control={form.control}
               fieldName="fromAddress"
               title="Adresse de départ"
+              enableAutocomplete
+              onAddressSelect={({ address, coords }) => {
+                form.setValue("fromAddress", address);
+                setFromCoords(coords);
+                if (toCoords) fetchAndSetRoute(coords, toCoords);
+              }}
             />
 
             {/* Adresse d'arrivée */}
@@ -111,6 +154,12 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
               control={form.control}
               fieldName="toAddress"
               title="Adresse d'arrivée"
+              enableAutocomplete
+              onAddressSelect={({ address, coords }) => {
+                form.setValue("toAddress", address);
+                setToCoords(coords);
+                if (fromCoords) fetchAndSetRoute(fromCoords, coords);
+              }}
             />
           </div>
 
@@ -164,7 +213,7 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {/* Places disponibles */}
               <Controller
                 control={form.control}
@@ -207,6 +256,11 @@ export function CarpoolForm({ initialData, onClose }: CarpoolFormProps) {
                     <FieldLabel id={`${field.name}-label`} htmlFor={field.name}>
                       Distance du trajet
                       <span className="text-red-500">*</span>
+                      {routeLoading && (
+                        <span className="ml-2 text-muted-foreground text-xs font-normal">
+                          (calcul en cours…)
+                        </span>
+                      )}
                     </FieldLabel>
                     <InputNumber
                       value={field.value}

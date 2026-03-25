@@ -1,6 +1,7 @@
 import { Car } from "./car";
 import { User } from "./user";
 
+/** Représente une réservation de véhicule de service. */
 export type ServiceCarBooking = {
   id?: number;
   serviceCarId?: number;
@@ -12,12 +13,14 @@ export type ServiceCarBooking = {
   status: ServiceCarBookingStatus;
 };
 
+/** Statut d'une réservation de véhicule de service. */
 export type ServiceCarBookingStatus =
   | "PENDING"
   | "CONFIRMED"
   | "CANCELLED"
   | "COMPLETED";
 
+/** Retourne le libellé lisible d'un statut de réservation de véhicule de service. */
 export const getBookingStatusLabel = (status?: ServiceCarBookingStatus) => {
   const labels: Record<ServiceCarBookingStatus, string> = {
     PENDING: "En attente",
@@ -28,6 +31,7 @@ export const getBookingStatusLabel = (status?: ServiceCarBookingStatus) => {
   return status ? labels[status] : "";
 };
 
+/** Retourne la classe Tailwind associée à un statut de réservation de véhicule de service. */
 export const getBookingStatusColor = (status?: ServiceCarBookingStatus) => {
   switch (status) {
     case "PENDING":

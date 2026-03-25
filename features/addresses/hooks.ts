@@ -2,6 +2,7 @@ import { AddressSchema } from "@/features/addresses/schemas";
 import { Address } from "@/types/address";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+/** Récupère la liste des adresses de l’utilisateur connecté. */
 export function useGetAddresses() {
   return useQuery<Address[]>({
     queryKey: ["addresses"],
@@ -22,6 +23,10 @@ export function useGetAddresses() {
   });
 }
 
+/**
+ * Récupère une adresse par son identifiant.
+ * @param id Identifiant de l’adresse (optionnel, désactive la requête si absent).
+ */
 export function useGetAddressById(id?: string) {
   return useQuery<Address>({
     queryKey: ["addresses", id],
@@ -42,6 +47,7 @@ export function useGetAddressById(id?: string) {
   });
 }
 
+/** Ajoute une adresse puis actualise la liste des adresses. */
 export function useAddAddress() {
   const qc = useQueryClient();
   return useMutation<Address, Error, AddressSchema>({
@@ -67,6 +73,7 @@ export function useAddAddress() {
   });
 }
 
+/** Modifie une adresse puis actualise la liste des adresses. */
 export function useEditAddress() {
   const qc = useQueryClient();
   return useMutation<Address, Error, AddressSchema>({
@@ -83,7 +90,7 @@ export function useEditAddress() {
           message: "Erreur lors de la modification de l'adresse",
         }));
         throw new Error(
-          error.message || "Erreur lors de la modification de l'adresse"
+          error.message || "Erreur lors de la modification de l'adresse",
         );
       }
       return res.json() as Promise<Address>;
@@ -94,6 +101,7 @@ export function useEditAddress() {
   });
 }
 
+/** Supprime une adresse à partir de son id, met à jour le cache puis actualise la liste. */
 export function useDeleteAddress() {
   const qc = useQueryClient();
   return useMutation<void, Error, number>({
@@ -108,11 +116,16 @@ export function useDeleteAddress() {
           message: "Erreur lors de la suppression de l'adresse",
         }));
         throw new Error(
-          error.message || "Erreur lors de la suppression de l'adresse"
+          error.message || "Erreur lors de la suppression de l'adresse",
         );
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
+      qc.setQueriesData<Address[] | Address | undefined>(
+        { queryKey: ["addresses"] },
+        (old) =>
+          Array.isArray(old) ? old.filter((c) => c.id !== deletedId) : old,
+      );
       qc.invalidateQueries({ queryKey: ["addresses"] });
     },
   });

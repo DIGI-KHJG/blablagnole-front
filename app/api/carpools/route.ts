@@ -1,6 +1,9 @@
 import { proxyToSpring } from "@/lib/api/proxyToSpring";
 import { route } from "@/lib/api/zodRoute";
 
+/**
+ * Selon la méthode HTTP, récupère la liste, crée ou met à jour un covoiturage.
+ */
 export const GET = route.handler(async () => {
   return proxyToSpring("/carpools", {
     method: "GET",

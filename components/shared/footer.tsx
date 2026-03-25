@@ -1,54 +1,109 @@
-import { BlablagnoleLogo } from "@/components/ui/blablagnole-logo";
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
-interface MenuItem {
-  title: string;
-  links: {
-    text: string;
-    url: string;
-  }[];
-}
 
-interface FooterProps {
-  menuItems?: MenuItem[];
-  copyright?: string;
-  bottomLinks?: {
-    text: string;
-    url: string;
-  }[];
-}
+import { SITE_SECTION_LINKS } from "@/lib/site-sections";
 
-const Footer = ({
-  menuItems = [],
-  copyright = "© 2025 Blablagnole.fr - Tous droits réservés.",
-}: FooterProps) => {
-  return (
-    <section className="py-16 border-t">
-      <footer className="container mx-auto">
-        <div className="grid grid-cols-2 gap-8 lg:grid-cols-6">
-          <div className="col-span-2 mb-8 lg:mb-0">
-            <div className="flex items-center gap-2 lg:justify-start">
-              <BlablagnoleLogo className="w-56" />
-            </div>
-          </div>
-          {menuItems.map((section, sectionIdx) => (
-            <div key={sectionIdx}>
-              <h3 className="mb-4 font-bold">{section.title}</h3>
-              <ul className="text-muted-foreground space-y-4">
-                {section.links.map((link, linkIdx) => (
-                  <li key={linkIdx} className="hover:text-primary font-medium">
-                    <Link href={link.url}>{link.text}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </footer>
-      <div className="text-muted-foreground mt-24 flex flex-col justify-between gap-4 border-t pt-8 text-sm font-medium md:flex-row md:items-center ">
-        <p className="mx-10">{copyright}</p>
-      </div>
-    </section>
-  );
+const footerLinks = {
+  support: [
+    { label: "FAQ", href: "/#faq" },
+    { label: "Contact", href: "#" },
+    { label: "Signaler un probleme", href: "#" },
+  ],
+  legal: [
+    { label: "Mentions legales", href: "#" },
+    { label: "Politique de confidentialite", href: "#" },
+  ],
 };
 
-export { Footer };
+export function Footer() {
+  return (
+    <footer className="border-t border-border bg-secondary">
+      <div className="mx-auto max-w-7xl px-6 py-12 sm:py-16">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Logo et description */}
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Link href="/" className="inline-block">
+              <Image
+                src="/bbgl-logo.svg"
+                alt="Blablagnole"
+                width={160}
+                height={40}
+                className="h-10 w-auto brightness-0 invert"
+              />
+            </Link>
+            <p className="mt-4 max-w-xs text-sm text-white/50 leading-relaxed">
+              La plateforme de covoiturage interne qui rapproche vos
+              collaborateurs et réduit votre empreinte carbone.
+            </p>
+          </div>
+
+          {/* Plateforme */}
+          <div>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+              Plateforme
+            </h3>
+            <ul className="space-y-3">
+              {SITE_SECTION_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-white/50 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+              Support
+            </h3>
+            <ul className="space-y-3">
+              {footerLinks.support.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-white/50 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Mentions légales */}
+          <div>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+              Mentions légales
+            </h3>
+            <ul className="space-y-3">
+              {footerLinks.legal.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-white/50 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 border-t border-white/10 pt-8">
+          <p className="text-center text-sm text-white/40">
+            Copyright © - {new Date().getFullYear()} Blablagnole - Made by
+            Khaled & Julia with ❤️
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

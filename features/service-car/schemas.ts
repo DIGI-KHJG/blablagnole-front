@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** Valide les informations d'un véhicule de service. */
 export const serviceCarSchema = z.object({
   id: z.number().optional(),
   registrationPlate: z.string({
@@ -18,4 +19,5 @@ export const serviceCarSchema = z.object({
   status: z.enum(["IN_SERVICE", "UNDER_REPAIR", "OUT_OF_SERVICE"]).optional(),
 });
 
+/** Type utilisé pour saisir un véhicule de service dans les formulaires. */
 export type ServiceCarSchema = z.input<typeof serviceCarSchema>;

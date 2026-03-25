@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+/** Formulaire d’inscription (nom, prénom, email, mot de passe) avec indicateur de force du mot de passe. */
 export function SignupForm() {
   const { mutate: register, isPending } = useRegister();
   const router = useRouter();
@@ -40,7 +41,7 @@ export function SignupForm() {
 
   const onSubmit = (data: RegisterSchema) => {
     const encodedFirstName = encodeURIComponent(
-      data.firstName.trim().toLowerCase()
+      data.firstName.trim().toLowerCase(),
     );
     const formData = {
       ...data,
@@ -49,7 +50,7 @@ export function SignupForm() {
 
     register(formData, {
       onSuccess: () => {
-        router.push("/dashboard");
+        router.push("/");
       },
       onError: (error) => {
         console.error("Erreur d'inscription:", error);

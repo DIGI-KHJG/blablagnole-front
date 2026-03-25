@@ -1,5 +1,6 @@
 import { Carpool } from "@/types/carpool";
 import { User } from "./user";
+/** Représente une réservation de covoiturage. */
 export type CarpoolBooking = {
   id?: number;
   carpool: Carpool;
@@ -7,12 +8,14 @@ export type CarpoolBooking = {
   status: CarpoolBookingStatus;
 };
 
+/** Statut d'une réservation de covoiturage. */
 export type CarpoolBookingStatus =
   | "PENDING"
   | "CONFIRMED"
   | "CANCELLED"
   | "COMPLETED";
 
+/** Retourne le libellé lisible d'un statut de réservation de covoiturage. */
 export const getStatusLabel = (status?: CarpoolBookingStatus) => {
   const labels: Record<CarpoolBookingStatus, string> = {
     PENDING: "En attente",
@@ -23,6 +26,7 @@ export const getStatusLabel = (status?: CarpoolBookingStatus) => {
   return status ? labels[status] : "";
 };
 
+/** Retourne la classe Tailwind associée à un statut de réservation de covoiturage. */
 export const getStatusColor = (status?: CarpoolBookingStatus) => {
   switch (status) {
     case "PENDING":

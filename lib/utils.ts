@@ -1,10 +1,20 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+/**
+ * Fusionne des noms de classes (clsx + twMerge) pour éviter les conflits Tailwind.
+ * @param inputs Classes ou conditions (ClassValue).
+ * @returns Chaîne de classes CSS.
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Formate une date au format court français (jj/mm/aaaa).
+ * @param date Date, chaîne ISO ou null/undefined.
+ * @returns Chaîne formatée ou "N/A" si invalide.
+ */
 export const formatDateShort = (date: string | Date | null | undefined) => {
   if (!date) return "N/A";
   const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -16,6 +26,11 @@ export const formatDateShort = (date: string | Date | null | undefined) => {
   });
 };
 
+/**
+ * Formate une date et une heure au format français (jj/mm/aaaa, hh:mm).
+ * @param date Date, chaîne ISO ou null/undefined.
+ * @returns Chaîne formatée ou "N/A" si invalide.
+ */
 export const formatDateTime = (date: string | Date | null | undefined) => {
   if (!date) return "N/A";
   const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -29,6 +44,11 @@ export const formatDateTime = (date: string | Date | null | undefined) => {
   });
 };
 
+/**
+ * Formate une durée en heures et minutes (ex. "2h30min" ou "45min").
+ * @param minutes Durée en minutes.
+ * @returns Chaîne lisible.
+ */
 export const formatDuration = (minutes: number) => {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -36,16 +56,4 @@ export const formatDuration = (minutes: number) => {
     return `${hours}h${mins > 0 ? `${mins}min` : ""}`;
   }
   return `${mins}min`;
-};
-
-export const formatDateTimeShort = (date: string | Date | null | undefined) => {
-  if (!date) return "N/A";
-  const dateObj = typeof date === "string" ? new Date(date) : date;
-  if (isNaN(dateObj.getTime())) return "N/A";
-  const dateStr = formatDateShort(dateObj);
-  const time = dateObj.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `${dateStr} à ${time}`;
 };

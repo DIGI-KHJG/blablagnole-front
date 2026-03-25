@@ -14,18 +14,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { FaCar, FaHome, FaTruck, FaUsers } from "react-icons/fa";
+import { FaCar, FaTruck, FaUsers } from "react-icons/fa";
 import { IoCarSport } from "react-icons/io5";
 
 import { useGetCurrentUser } from "@/features/auth/hooks";
 
 const data = {
   navLinks: [
-    {
-      title: "Accueil",
-      url: "/dashboard",
-      icon: FaHome,
-    },
+    // {
+    //   title: "Accueil",
+    //   url: "/dashboard",
+    //   icon: FaHome,
+    // },
     {
       title: "Co-voiturage",
       icon: IoCarSport,
@@ -49,10 +49,6 @@ const data = {
       title: "Véhicules de services",
       icon: FaCar,
       items: [
-        {
-          title: "Louer un véhicule",
-          url: "/dashboard/vehicules-de-services/location",
-        },
         {
           title: "Mes Locations",
           url: "/dashboard/vehicules-de-services/mes-locations",
@@ -106,11 +102,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           items={
             isAdmin
               ? data.navLinks
-              : data.navLinks.filter(
-                  (item) =>
-                    item.title !== "Parc de véhicules" &&
-                    item.title !== "Collaborateurs"
-                )
+              : data.navLinks
+                  .filter(
+                    (item) =>
+                      item.title !== "Parc de véhicules" &&
+                      item.title !== "Collaborateurs",
+                  )
+                  .map((item) => {
+                    if (item.title === "Co-voiturage" && item.items) {
+                      return {
+                        ...item,
+                        items: item.items.filter(
+                          (sub) => sub.title !== "Liste des covoiturages",
+                        ),
+                      };
+                    }
+                    return item;
+                  })
           }
         />
       </SidebarContent>

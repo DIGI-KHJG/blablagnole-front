@@ -11,6 +11,18 @@ type Opts = {
   contentType?: string | null;
 };
 
+/**
+ * Envoie une requête au backend Spring et renvoie une réponse compatible Next.js.
+ *
+ * Cette fonction sert de "pont" entre les routes API Next.js et l'API Spring :
+ * - elle reprend les cookies de la requête courante et les transmet au backend ;
+ * - elle prépare le body (JSON ou brut) selon les options passées ;
+ * - elle renvoie la réponse avec le bon statut, le bon contenu et les `set-cookie`.
+ *
+ * @param path Chemin backend à appeler (ex: `/cars`).
+ * @param opts Configuration de la requête (méthode HTTP, headers, body JSON ou body brut).
+ * @returns Une `NextResponse` prête à être renvoyée par la route API.
+ */
 export async function proxyToSpring(path: string, opts: Opts = {}) {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore
@@ -40,7 +52,7 @@ export async function proxyToSpring(path: string, opts: Opts = {}) {
     cache: "no-store",
   });
 
-  // For 204 No Content, we must not include a body
+  // Pour une réponse 204 No Content, ne pas inclure de corps.
   if (upstream.status === 204) {
     const out = new NextResponse(null, {
       status: 204,

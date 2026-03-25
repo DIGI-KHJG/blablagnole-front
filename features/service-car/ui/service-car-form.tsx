@@ -38,6 +38,12 @@ interface ServiceCarFormProps {
   initialData?: Car;
   onClose: () => void;
 }
+
+/**
+ * Formulaire de création ou modification d’un véhicule de service (plaque, marque, modèle, catégorie, motorisation, CO2).
+ * @param initialData Données initiales en mode édition (optionnel).
+ * @param onClose Callback appelé à la fermeture ou après succès.
+ */
 export function ServiceCarForm({ initialData, onClose }: ServiceCarFormProps) {
   const { mutate: addServiceCar, isPending } = useAddServiceCar();
   const { mutate: editServiceCar, isPending: isEditingPending } =

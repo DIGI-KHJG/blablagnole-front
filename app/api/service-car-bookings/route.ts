@@ -1,6 +1,9 @@
 import { proxyToSpring } from "@/lib/api/proxyToSpring";
 import { route } from "@/lib/api/zodRoute";
 
+/**
+ * Selon la méthode HTTP, récupère la liste, crée ou met à jour une réservation de véhicule de service.
+ */
 export const GET = route.handler(async () => {
   return proxyToSpring("/service-car-bookings", {
     method: "GET",

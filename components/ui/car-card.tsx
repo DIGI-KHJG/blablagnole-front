@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Car,
+  type Car,
   getCategoryLabel,
   getMotorisationColor,
   getMotorisationLabel,
@@ -23,7 +23,8 @@ import { LuPencil, LuTrash2, LuUsers } from "react-icons/lu";
 
 type CarCardProps = {
   car?: Car;
-  type?: "service" | "location";
+  type?: "service" | "location" | "display";
+  hideRegistrationPlate?: boolean;
   onClick?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -32,6 +33,7 @@ type CarCardProps = {
 export function CarCard({
   car,
   type = "service",
+  hideRegistrationPlate = false,
   onClick,
   onEdit,
   onDelete,
@@ -50,8 +52,8 @@ export function CarCard({
   return (
     <>
       <Card
-        className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 flex flex-col bg-white border-border p-0 gap-2 cursor-pointer"
-        onClick={onClick}
+        className={`group overflow-hidden transition-all duration-300 flex flex-col bg-white border-border p-0 gap-2 ${type === "display" ? "" : "hover:shadow-lg hover:shadow-primary/5 cursor-pointer"}`}
+        onClick={type === "display" ? undefined : onClick}
       >
         <div className="relative h-44 w-full overflow-hidden">
           <Image
@@ -105,7 +107,7 @@ export function CarCard({
             <Badge
               variant="outline"
               className={`${getMotorisationColor(
-                car?.motorisation
+                car?.motorisation,
               )} text-sm font-semibold text-white border-none`}
             >
               {getMotorisationLabel(car?.motorisation)}
@@ -127,9 +129,11 @@ export function CarCard({
               <h3 className="text-base font-bold text-card-foreground truncate">
                 {car?.brand} {car?.model}
               </h3>
-              <p className="text-sm  text-muted-foreground mt-1.5 truncate bg-muted/50 px-2 py-1 rounded-md inline-block">
-                {car?.registrationPlate}
-              </p>
+              {!hideRegistrationPlate && (
+                <p className="text-sm  text-muted-foreground mt-1.5 truncate bg-muted/50 px-2 py-1 rounded-md inline-block">
+                  {car?.registrationPlate}
+                </p>
+              )}
             </div>
             <div className="text-right shrink-0">
               <p className="text-xs text-muted-foreground font-bold mb-0.5">
@@ -173,20 +177,28 @@ export function CarCard({
           </div>
           {type === "location" && (
             <div className="flex items-center gap-2">
-              <Button className="w-full" onClick={onClick}>
+              <Button
+                className="w-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick?.();
+                }}
+              >
                 Louer
               </Button>
             </div>
           )}
         </CardContent>
       </Card>
-      <DeleteConfirmationDialog
-        showDeleteDialog={showDeleteDialog}
-        setShowDeleteDialog={setShowDeleteDialog}
-        handleDelete={handleDelete}
-        title="Supprimer le véhicule"
-        description={`supprimer le véhicule ${car?.brand} ${car?.model} (${car?.registrationPlate})`}
-      />
+      {type !== "display" && (
+        <DeleteConfirmationDialog
+          showDeleteDialog={showDeleteDialog}
+          setShowDeleteDialog={setShowDeleteDialog}
+          handleDelete={handleDelete}
+          title="Supprimer le véhicule"
+          description={`supprimer le véhicule ${car?.brand} ${car?.model} (${car?.registrationPlate})`}
+        />
+      )}
     </>
   );
 }

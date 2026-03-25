@@ -2,6 +2,7 @@ import { Address } from "@/types/address";
 import { Car } from "@/types/car";
 import { User } from "@/types/user";
 
+/** Représente un trajet de covoiturage. */
 export type Carpool = {
   id?: number;
   driverId?: number;
@@ -19,8 +20,10 @@ export type Carpool = {
   status: CarpoolStatus;
 };
 
+/** Statut d'un covoiturage. */
 export type CarpoolStatus = "OPEN" | "FULL" | "CANCELLED" | "COMPLETED";
 
+/** Retourne le libellé lisible d'un statut de covoiturage. */
 export const getStatusLabel = (status?: CarpoolStatus) => {
   const labels: Record<CarpoolStatus, string> = {
     OPEN: "Ouvert",
@@ -31,6 +34,7 @@ export const getStatusLabel = (status?: CarpoolStatus) => {
   return status ? labels[status] : "";
 };
 
+/** Retourne la classe Tailwind associée à un statut de covoiturage. */
 export const getStatusColor = (status?: CarpoolStatus) => {
   switch (status) {
     case "OPEN":
@@ -43,5 +47,21 @@ export const getStatusColor = (status?: CarpoolStatus) => {
       return "bg-blue-500";
     default:
       return "bg-secondary";
+  }
+};
+
+/** Retourne la classe de bordure associée à un statut de covoiturage. */
+export const getStatusBorderColor = (status?: CarpoolStatus) => {
+  switch (status) {
+    case "OPEN":
+      return "border-l-emerald-500";
+    case "FULL":
+      return "border-l-amber-500";
+    case "CANCELLED":
+      return "border-l-red-500";
+    case "COMPLETED":
+      return "border-l-blue-500";
+    default:
+      return "border-l-border";
   }
 };

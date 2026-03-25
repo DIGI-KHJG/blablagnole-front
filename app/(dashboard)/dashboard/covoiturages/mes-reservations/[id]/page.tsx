@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CarpoolDetailsSkeleton } from "@/components/ui/carpool-details-skeleton";
 import {
   useCancelCarpoolBooking,
   useGetCarpoolBookingById,
@@ -16,6 +17,7 @@ import {
   getMotorisationColor,
   getMotorisationLabel,
 } from "@/types/car";
+import { getDisplayName, getInitials } from "@/lib/user";
 import { getStatusColor, getStatusLabel } from "@/types/carpool-booking";
 import { Car, Clock, Leaf, Palette, Route, Users } from "lucide-react";
 import Image from "next/image";
@@ -29,9 +31,10 @@ import { toast } from "sonner";
 export default function CarpoolBookingDetailsPage() {
   const { id } = useParams();
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const { data: carpoolBooking } = useGetCarpoolBookingById(id as string);
+  const { data: carpoolBooking, isPending } = useGetCarpoolBookingById(
+    id as string,
+  );
   const { mutate: cancelBooking } = useCancelCarpoolBooking();
-  console.log(carpoolBooking);
 
   const handleCancelBooking = (id: number) => {
     cancelBooking(id, {
@@ -46,6 +49,8 @@ export default function CarpoolBookingDetailsPage() {
     });
   };
 
+  if (isPending) return <CarpoolDetailsSkeleton />;
+
   return (
     <div className="bg-background">
       <div className="mb-6 flex items-start justify-between gap-4">
@@ -53,7 +58,7 @@ export default function CarpoolBookingDetailsPage() {
           <div className="flex items-center gap-3 mb-3">
             <Badge
               className={`${getStatusColor(
-                carpoolBooking?.status
+                carpoolBooking?.status,
               )} text-white text-md font-semibold`}
             >
               {getStatusLabel(carpoolBooking?.status)}
@@ -83,8 +88,8 @@ export default function CarpoolBookingDetailsPage() {
                 <div className="flex items-start gap-3">
                   <div className="flex flex-col items-center pt-1">
                     <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" />
-                    <div className="w-0.5 h-8 bg-linear-to-b from-primary to-destructive my-1" />
-                    <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm" />
+                    <div className="w-0.5 h-21 bg-linear-to-b from-primary to-primary my-1" />
+                    <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" />
                   </div>
                   <div className="flex-1 min-w-0 space-y-4">
                     <div>
@@ -137,7 +142,7 @@ export default function CarpoolBookingDetailsPage() {
                       value={
                         carpoolBooking?.carpool?.distanceKm
                           ? `${carpoolBooking?.carpool?.distanceKm.toFixed(
-                              1
+                              1,
                             )} km`
                           : "N/A"
                       }
@@ -157,6 +162,45 @@ export default function CarpoolBookingDetailsPage() {
                   </div>
                 </div>
               </div>
+              {/* Passagers sous les détails du trajet */}
+              {carpoolBooking?.carpool?.passengers &&
+                carpoolBooking.carpool.passengers.length > 0 && (
+                  <div className="mt-6 pt-4 border-t border-border">
+                    <div className="mb-4 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <p className="text-base font-semibold text-card-foreground">
+                        Passagers ({carpoolBooking.carpool.passengers.length}/
+                        {carpoolBooking.carpool.seatsTotal ?? 0})
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {carpoolBooking.carpool.passengers.map((passenger) => (
+                        <div
+                          key={passenger.id}
+                          className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-3"
+                        >
+                          <Avatar className="h-10 w-10">
+                            {passenger.profilePicture ? (
+                              <AvatarImage
+                                src={passenger.profilePicture}
+                                alt={getDisplayName(passenger, "Passager")}
+                              />
+                            ) : null}
+                            <AvatarFallback>
+                              {getInitials(passenger)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-card-foreground">
+                              {getDisplayName(passenger, "Passager")}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               <div className="mt-6 pt-4 border-t border-border">
                 <Button
                   className="w-full"
@@ -192,19 +236,21 @@ export default function CarpoolBookingDetailsPage() {
                       <Avatar className="h-16 w-16">
                         <AvatarImage
                           src={carpoolBooking?.carpool?.driver?.profilePicture}
-                          alt={carpoolBooking?.carpool?.driver?.fullName}
+                          alt={getDisplayName(
+                            carpoolBooking.carpool.driver,
+                            "Conducteur",
+                          )}
                         />
                         <AvatarFallback>
-                          {carpoolBooking?.carpool?.driver?.firstName[0]}
-                          {carpoolBooking?.carpool?.driver?.lastName[0]}
+                          {getInitials(carpoolBooking.carpool.driver)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <p className="text-lg font-semibold text-card-foreground">
-                          {carpoolBooking?.carpool?.driver?.fullName}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {carpoolBooking?.carpool?.driver?.email}
+                          {getDisplayName(
+                            carpoolBooking.carpool.driver,
+                            "Conducteur",
+                          )}
                         </p>
                       </div>
                     </div>
@@ -230,17 +276,17 @@ export default function CarpoolBookingDetailsPage() {
                         <div className="absolute bottom-4 left-4 flex gap-2 flex-wrap">
                           <Badge
                             className={`${getMotorisationColor(
-                              carpoolBooking?.carpool?.car?.motorisation
+                              carpoolBooking?.carpool?.car?.motorisation,
                             )} text-white text-md font-semibold`}
                           >
                             {getMotorisationLabel(
-                              carpoolBooking?.carpool?.car?.motorisation
+                              carpoolBooking?.carpool?.car?.motorisation,
                             )}
                           </Badge>
                           {carpoolBooking?.carpool?.car?.category && (
                             <Badge className="bg-background text-foreground text-md font-semibold">
                               {getCategoryLabel(
-                                carpoolBooking?.carpool?.car?.category
+                                carpoolBooking?.carpool?.car?.category,
                               )}
                             </Badge>
                           )}
@@ -271,7 +317,7 @@ export default function CarpoolBookingDetailsPage() {
                           icon={<BsFuelPump className="h-5 w-5" />}
                           label="Motorisation"
                           value={getMotorisationLabel(
-                            carpoolBooking?.carpool?.car?.motorisation
+                            carpoolBooking?.carpool?.car?.motorisation,
                           )}
                         />
                       </div>
@@ -294,7 +340,7 @@ export default function CarpoolBookingDetailsPage() {
                           icon={<Car className="h-5 w-5" />}
                           label="Catégorie"
                           value={getCategoryLabel(
-                            carpoolBooking?.carpool?.car?.category
+                            carpoolBooking?.carpool?.car?.category,
                           )}
                         />
                       </div>

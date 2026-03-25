@@ -3,7 +3,7 @@ import { createZodRoute } from "next-zod-route";
 export const route = createZodRoute({
   handleServerError: (error: Error) => {
     return new Response(
-      JSON.stringify({ message: error.message || "Internal server error" }),
+      JSON.stringify({ message: error.message || "Erreur interne du serveur" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },

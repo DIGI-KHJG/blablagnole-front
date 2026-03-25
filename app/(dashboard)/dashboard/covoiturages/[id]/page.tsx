@@ -1,14 +1,10 @@
 "use client";
 
-import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 import { DetailRow } from "@/components/shared/details-row";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CarpoolDetailsSkeleton } from "@/components/ui/carpool-details-skeleton";
-import { useGetCurrentUser } from "@/features/auth/hooks";
-import { useBookCarpool } from "@/features/carpool-booking/hooks";
 import { useGetCarpoolById } from "@/features/carpool/hooks";
 import { formatDateTime, formatDuration } from "@/lib/utils";
 import {
@@ -19,42 +15,13 @@ import {
 import { getStatusColor, getStatusLabel } from "@/types/carpool";
 import { Car, Clock, Leaf, Palette, Route, Users } from "lucide-react";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useParams } from "next/navigation";
 import { BsFuelPump } from "react-icons/bs";
 import { TbLicense } from "react-icons/tb";
-import { toast } from "sonner";
 
 export default function CarpoolDetailsPage() {
   const { id } = useParams();
-  const router = useRouter();
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const { data: currentUser } = useGetCurrentUser();
   const { data: carpool, isPending } = useGetCarpoolById(id as string);
-  const { mutate: bookCarpool } = useBookCarpool();
-
-  const handleConfirmReservation = () => {
-    if (carpool?.id && currentUser?.id) {
-      bookCarpool(
-        {
-          carpoolId: carpool.id,
-          passengerId: currentUser.id,
-          status: "CONFIRMED",
-        },
-        {
-          onSuccess: () => {
-            setShowConfirmationDialog(false);
-            toast.success("Covoiturage réservé avec succès");
-            router.push("/dashboard/covoiturages/mes-reservations");
-          },
-          onError: (error) => {
-            setShowConfirmationDialog(false);
-            toast.error(error.message);
-          },
-        }
-      );
-    }
-  };
 
   if (isPending) {
     return <CarpoolDetailsSkeleton />;
@@ -67,7 +34,7 @@ export default function CarpoolDetailsPage() {
           <div className="flex items-center gap-3 mb-3">
             <Badge
               className={`${getStatusColor(
-                carpool?.status
+                carpool?.status,
               )} text-white text-md font-semibold`}
             >
               {getStatusLabel(carpool?.status)}
@@ -97,8 +64,8 @@ export default function CarpoolDetailsPage() {
                 <div className="flex items-start gap-3">
                   <div className="flex flex-col items-center pt-1">
                     <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" />
-                    <div className="w-0.5 h-8 bg-linear-to-b from-primary to-destructive my-1" />
-                    <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm" />
+                    <div className="w-0.5 h-21 bg-linear-to-b from-primary to-primary my-1" />
+                    <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" />
                   </div>
                   <div className="flex-1 min-w-0 space-y-4">
                     <div>
@@ -167,23 +134,6 @@ export default function CarpoolDetailsPage() {
                   </div>
                 </div>
               </div>
-              <div className="mt-6 pt-4 border-t border-border">
-                <Button
-                  className="w-full"
-                  onClick={() => setShowConfirmationDialog(true)}
-                  disabled={
-                    carpool?.status === "FULL" ||
-                    carpool?.status === "CANCELLED" ||
-                    carpool?.status === "COMPLETED" ||
-                    carpool?.seatsRemaining === 0 ||
-                    !currentUser?.id
-                  }
-                >
-                  {carpool?.status === "FULL" || carpool?.seatsRemaining === 0
-                    ? "Complet"
-                    : "Réserver"}
-                </Button>
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -243,7 +193,7 @@ export default function CarpoolDetailsPage() {
                         <div className="absolute bottom-4 left-4 flex gap-2 flex-wrap">
                           <Badge
                             className={`${getMotorisationColor(
-                              carpool.car.motorisation
+                              carpool.car.motorisation,
                             )} text-white text-md font-semibold`}
                           >
                             {getMotorisationLabel(carpool.car.motorisation)}
@@ -307,23 +257,6 @@ export default function CarpoolDetailsPage() {
           )}
         </div>
       </div>
-
-      <ConfirmationDialog
-        showConfirmationDialog={showConfirmationDialog}
-        setShowConfirmationDialog={setShowConfirmationDialog}
-        handleConfirm={handleConfirmReservation}
-        title="Confirmer la réservation"
-        description={
-          <>
-            Êtes-vous sûr de vouloir réserver ce trajet ?{" "}
-            <strong>
-              {carpool?.fromAddress?.city} vers {carpool?.toAddress?.city}
-              {carpool?.departureAt &&
-                ` pour le ${formatDateTime(carpool.departureAt)}`}
-            </strong>
-          </>
-        }
-      />
     </div>
   );
 }

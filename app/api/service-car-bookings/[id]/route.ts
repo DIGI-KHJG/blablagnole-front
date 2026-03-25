@@ -2,6 +2,10 @@ import { proxyToSpring } from "@/lib/api/proxyToSpring";
 import { route } from "@/lib/api/zodRoute";
 import { z } from "zod";
 
+/**
+ * Récupère ou supprime la réservation de véhicule de service avec `id`.
+ * La requête est transmise au backend.
+ */
 export const GET = route
   .params(z.object({ id: z.string() }))
   .handler(async (request, { params }) => {

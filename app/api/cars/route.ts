@@ -1,6 +1,10 @@
 import { proxyToSpring } from "@/lib/api/proxyToSpring";
 import { route } from "@/lib/api/zodRoute";
 
+/**
+ * Ajoute ou modifie une voiture.
+ * La requête est transmise au backend.
+ */
 export const POST = route.handler(async (request, { body }) => {
   return proxyToSpring("/cars", {
     method: "POST",

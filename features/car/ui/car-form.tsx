@@ -33,6 +33,12 @@ interface CarFormProps {
   initialData?: Car;
   onClose: () => void;
 }
+
+/**
+ * Formulaire de création ou modification d’un véhicule personnel (plaque, marque, modèle, catégorie, motorisation).
+ * @param initialData Données initiales en mode édition (optionnel).
+ * @param onClose Callback appelé à la fermeture ou après succès.
+ */
 export function CarForm({ initialData, onClose }: CarFormProps) {
   const { data: currentUser } = useGetCurrentUser();
   const { mutate: addCar, isPending } = useAddCar();

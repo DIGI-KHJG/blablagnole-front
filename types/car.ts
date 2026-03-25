@@ -1,3 +1,4 @@
+/** Représente un véhicule personnel ou de service. */
 export type Car = {
   id?: number;
   driverId?: number;
@@ -13,10 +14,13 @@ export type Car = {
   status?: CarStatus;
 };
 
+/** Statut d'un véhicule de service. */
 export type CarStatus = "IN_SERVICE" | "UNDER_REPAIR" | "OUT_OF_SERVICE";
 
+/** Type de motorisation d'un véhicule. */
 export type CarMotorisation = "PETROL" | "DIESEL" | "ELECTRIC" | "HYBRID";
 
+/** Catégorie de véhicule. */
 export type CarCategory =
   | "MICRO_URBAN"
   | "MINI_CITY_CAR"
@@ -30,6 +34,7 @@ export type CarCategory =
   | "PICKUP"
   | "SPORT";
 
+/** Retourne le libellé lisible d'une motorisation. */
 export const getMotorisationLabel = (motorisation?: CarMotorisation) => {
   const labels: Record<CarMotorisation, string> = {
     ELECTRIC: "Électrique",
@@ -40,6 +45,7 @@ export const getMotorisationLabel = (motorisation?: CarMotorisation) => {
   return motorisation ? labels[motorisation] : "";
 };
 
+/** Retourne la classe Tailwind associée à une motorisation. */
 export const getMotorisationColor = (motorisation?: CarMotorisation) => {
   switch (motorisation) {
     case "ELECTRIC":
@@ -55,6 +61,7 @@ export const getMotorisationColor = (motorisation?: CarMotorisation) => {
   }
 };
 
+/** Retourne le libellé lisible d'une catégorie de véhicule. */
 export const getCategoryLabel = (category?: CarCategory) => {
   const labels: Record<CarCategory, string> = {
     MICRO_URBAN: "Micro-urbaine",
@@ -72,6 +79,7 @@ export const getCategoryLabel = (category?: CarCategory) => {
   return category ? labels[category] : "";
 };
 
+/** Retourne le libellé lisible d'un statut de véhicule. */
 export const getStatusLabel = (status?: CarStatus) => {
   const labels: Record<CarStatus, string> = {
     IN_SERVICE: "En service",
@@ -81,6 +89,7 @@ export const getStatusLabel = (status?: CarStatus) => {
   return status ? labels[status] : "";
 };
 
+/** Retourne la classe Tailwind associée à un statut de véhicule. */
 export const getStatusColor = (status?: CarStatus) => {
   switch (status) {
     case "IN_SERVICE":

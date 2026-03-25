@@ -17,7 +17,9 @@ interface ComboboxProps {
   options: string[];
   placeholder?: string;
   searchPlaceholder?: string;
+  icon?: React.ReactNode;
   className?: string;
+  listClassName?: string;
   id?: string;
   "aria-invalid"?: boolean;
   "aria-labelledby"?: string;
@@ -30,7 +32,9 @@ export function Combobox({
   options,
   placeholder = "Sélectionner...",
   searchPlaceholder = "Rechercher...",
+  icon,
   className,
+  listClassName,
   id,
   "aria-invalid": ariaInvalid,
   "aria-labelledby": ariaLabelledBy,
@@ -76,17 +80,24 @@ export function Combobox({
           type="button"
           variant="outline"
           className={cn(
-            "w-full justify-between font-normal h-9",
+            "w-full justify-between font-normal h-9 gap-2",
             !selectedOption && "text-muted-foreground",
             className
           )}
         >
-          <span className="truncate">{selectedOption || placeholder}</span>
-          <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <span className="flex min-w-0 flex-1 items-center gap-2">
+            {icon && (
+              <span className="[&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground">
+                {icon}
+              </span>
+            )}
+            <span className="truncate">{selectedOption || placeholder}</span>
+          </span>
+          <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
+        className="min-w-[240px] w-[var(--radix-popover-trigger-width)] p-0"
         align="start"
       >
         <div className="flex items-center gap-2 border-b px-3 py-2">
@@ -101,7 +112,7 @@ export function Combobox({
         </div>
         <div
           ref={scrollContainerRef}
-          className="max-h-[200px] overflow-y-auto p-1"
+          className={cn("max-h-[200px] overflow-y-auto p-1", listClassName)}
           onWheel={(e) => {
             e.stopPropagation();
           }}

@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ReactNode } from "react";
 
 interface DeleteConfirmationDialogProps {
   showDeleteDialog: boolean;
@@ -14,6 +15,7 @@ interface DeleteConfirmationDialogProps {
   handleDelete: () => void;
   title: string;
   description: string;
+  extraContent?: ReactNode;
 }
 
 export function DeleteConfirmationDialog({
@@ -22,6 +24,7 @@ export function DeleteConfirmationDialog({
   handleDelete,
   title,
   description,
+  extraContent,
 }: DeleteConfirmationDialogProps) {
   return (
     <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -32,6 +35,7 @@ export function DeleteConfirmationDialog({
             Êtes-vous sûr de vouloir <strong>{description}</strong> ? Cette
             action est irréversible.
           </DialogDescription>
+          {extraContent}
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>

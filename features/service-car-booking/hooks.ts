@@ -2,6 +2,7 @@ import { ServiceCarBooking } from "@/types/service-car-booking";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ServiceCarBookingSchema } from "./schemas";
 
+/** Récupère la liste des réservations de véhicules de service. */
 export function useGetServiceCarBookings() {
   return useQuery<ServiceCarBooking[]>({
     queryKey: ["service-car-bookings"],
@@ -12,7 +13,7 @@ export function useGetServiceCarBookings() {
       });
       if (!res.ok)
         throw new Error(
-          "Erreur lors de la récupération des réservations de véhicule de service"
+          "Erreur lors de la récupération des réservations de véhicule de service",
         );
       const data = await res.json();
       return data.content;
@@ -24,6 +25,10 @@ export function useGetServiceCarBookings() {
   });
 }
 
+/**
+ * Récupère une réservation de véhicule de service par identifiant.
+ * @param id Identifiant de la réservation (optionnel, désactive la requête si absent).
+ */
 export function useGetServiceCarBookingById(id?: string) {
   return useQuery<ServiceCarBooking>({
     queryKey: ["service-car-bookings", id],
@@ -34,7 +39,7 @@ export function useGetServiceCarBookingById(id?: string) {
       });
       if (!res.ok)
         throw new Error(
-          "Erreur lors de la récupération de la réservation de véhicule de service"
+          "Erreur lors de la récupération de la réservation de véhicule de service",
         );
       const data = await res.json();
       return data;
@@ -46,6 +51,10 @@ export function useGetServiceCarBookingById(id?: string) {
   });
 }
 
+/**
+ * Récupère les réservations de véhicules de service d’un conducteur.
+ * @param id Identifiant du conducteur (optionnel, désactive la requête si absent).
+ */
 export function useGetServiceCarBookingsByDriverId(id?: number) {
   return useQuery<ServiceCarBooking[]>({
     queryKey: ["service-car-bookings", id],
@@ -56,7 +65,7 @@ export function useGetServiceCarBookingsByDriverId(id?: number) {
       });
       if (!res.ok)
         throw new Error(
-          "Erreur lors de la récupération des réservations de véhicule de service"
+          "Erreur lors de la récupération des réservations de véhicule de service",
         );
       const data = await res.json();
       return data.content;
@@ -68,6 +77,7 @@ export function useGetServiceCarBookingsByDriverId(id?: number) {
   });
 }
 
+/** Crée une réservation de véhicule de service puis actualise la liste des réservations. */
 export function useBookServiceCar() {
   const qc = useQueryClient();
   return useMutation<ServiceCarBooking, Error, ServiceCarBookingSchema>({
@@ -85,7 +95,7 @@ export function useBookServiceCar() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de la réservation du véhicule de service"
+            "Erreur lors de la réservation du véhicule de service",
         );
       }
       return res.json() as Promise<ServiceCarBooking>;
@@ -98,6 +108,7 @@ export function useBookServiceCar() {
   });
 }
 
+/** Marque une réservation de véhicule de service comme terminée à partir de son id puis actualise la liste des réservations. */
 export function useCompleteServiceCarBooking() {
   const qc = useQueryClient();
   return useMutation<ServiceCarBooking, Error, number>({
@@ -114,7 +125,7 @@ export function useCompleteServiceCarBooking() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de la complétion de la réservation de véhicule de service"
+            "Erreur lors de la complétion de la réservation de véhicule de service",
         );
       }
       return res.json() as Promise<ServiceCarBooking>;
@@ -127,6 +138,7 @@ export function useCompleteServiceCarBooking() {
   });
 }
 
+/** Annule une réservation de véhicule de service à partir de son id puis actualise la liste des réservations. */
 export function useCancelServiceCarBooking() {
   const qc = useQueryClient();
   return useMutation<ServiceCarBooking, Error, number>({
@@ -143,7 +155,7 @@ export function useCancelServiceCarBooking() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de l'annulation de la réservation de véhicule de service"
+            "Erreur lors de l'annulation de la réservation de véhicule de service",
         );
       }
       return res.json() as Promise<ServiceCarBooking>;
@@ -156,6 +168,7 @@ export function useCancelServiceCarBooking() {
   });
 }
 
+/** Modifie une réservation de véhicule de service puis actualise la liste des réservations. */
 export function useEditServiceCarBooking() {
   const qc = useQueryClient();
   return useMutation<ServiceCarBooking, Error, ServiceCarBookingSchema>({
@@ -174,7 +187,7 @@ export function useEditServiceCarBooking() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de la modification de la réservation de véhicule de service"
+            "Erreur lors de la modification de la réservation de véhicule de service",
         );
       }
       return res.json() as Promise<ServiceCarBooking>;
@@ -187,6 +200,7 @@ export function useEditServiceCarBooking() {
   });
 }
 
+/** Supprime une réservation de véhicule de service à partir de son id, met à jour le cache puis actualise la liste. */
 export function useDeleteServiceCarBooking() {
   const qc = useQueryClient();
   return useMutation<void, Error, number>({
@@ -203,14 +217,17 @@ export function useDeleteServiceCarBooking() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de la suppression de la réservation de véhicule de service"
+            "Erreur lors de la suppression de la réservation de véhicule de service",
         );
       }
     },
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: ["service-car-bookings", "service-cars"],
-      });
+    onSuccess: (_, deletedId) => {
+      qc.setQueriesData<ServiceCarBooking[] | ServiceCarBooking | undefined>(
+        { queryKey: ["service-car-bookings"] },
+        (old) =>
+          Array.isArray(old) ? old.filter((c) => c.id !== deletedId) : old,
+      );
+      qc.invalidateQueries({ queryKey: ["service-car-bookings"] });
     },
   });
 }

@@ -26,7 +26,20 @@ export default function RootLayout({
     <html lang="fr">
       <body className={`${openSans.variable} antialiased`}>
         <AppProviders>{children}</AppProviders>
-        <Toaster position="top-right" />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              width: "fit-content",
+              color: "var(--foreground)",
+              border: "3px solid var(--primary)",
+              borderRadius: "9999px",
+            },
+            classNames: {
+              icon: "text-primary",
+            },
+          }}
+        />
       </body>
     </html>
   );

@@ -1,3 +1,4 @@
+/** Représente un utilisateur de l'application. */
 export type User = {
   id?: number;
   fullName: string;
@@ -8,8 +9,10 @@ export type User = {
   role: Role;
 };
 
+/** Rôle attribué à un utilisateur. */
 export type Role = "ADMIN" | "COLLABORATOR";
 
+/** Retourne le libellé lisible d'un rôle utilisateur. */
 export const getRoleLabel = (role?: Role) => {
   const labels: Record<Role, string> = {
     ADMIN: "Administrateur",
@@ -18,6 +21,7 @@ export const getRoleLabel = (role?: Role) => {
   return role ? labels[role] : "";
 };
 
+/** Retourne la classe Tailwind associée à un rôle utilisateur. */
 export const getRoleColor = (role?: Role) => {
   const colors: Record<Role, string> = {
     ADMIN: "bg-secondary",

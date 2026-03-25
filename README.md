@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blablagnole — interface web
 
-## Getting Started
+## À propos du projet
 
-First, run the development server:
+**Blablagnole** est le front d’une appli de **gestion des transports** : **véhicules de service**, **covoiturages** (annonces et réservations), côté **admin** gestion du **parc** et des comptes.
+
+Stack : **Next.js (React)** , API **Spring Boot** (Java 17). PDF du projet : `Cahier des charges - Gestion des transports.pdf`.
+
+## Rôles (résumé)
+
+- **Collaborateur** : auth, recherche et réservation covoiturage, ses annonces, locations véhicules de service, profil. Rôle affiché : `ADMIN` ou `COLLABORATOR`.
+- **Administrateur** : parc, locations, collaborateurs.
+- **Visiteur** : pages publiques sous `app/(site)`.
+
+## Technique
+
+Next.js 16, React 19, TypeScript, Tailwind 4, **shadcn/ui**, TanStack Query / Table, React Hook Form, Zod. E-mails : React Email + **Resend**. Plus deDétail dans : `package.json`.
+
+## Backend (BFF)
+
+Le front appelle **`/api/...`**. La plupart du temps [`lib/api/proxyToSpring.ts`](lib/api/proxyToSpring.ts) relaie vers `SPRING_API_URL` avec les **cookies**. Quelques routes envoient des mails via **Resend** (sans Spring).
+
+## Lancer en local
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000). Prod locale : `npm run build` puis `npm run start`. `npm run lint`, `npm run email:dev` pour les templates mail.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variables d’environnement
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env.local` à la racine (hors git) :
 
-## Learn More
+```env
+SPRING_API_URL=http://localhost:8080
 
-To learn more about Next.js, take a look at the following resources:
+RESEND_API_KEY=re_xxxxxxxx
+RESEND_FROM=Blablagnole <no-reply@votredomaine.fr>
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`SPRING_API_URL` : requis pour le proxy. Resend : `RESEND_API_KEY` + `RESEND_FROM`, sinon les `/api/emails/*` échouent (normal).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Routes `/api` → Spring
 
-## Deploy on Vercel
+Préfixe **`/api`**. Ex. `GET /api/auth/me`. **`{id}`** = id Spring.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Authentification
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Méthode | Route Next.js        | Ressource Spring      |
+| ------- | -------------------- | --------------------- |
+| POST    | `/api/auth/login`    | `POST /auth/login`    |
+| POST    | `/api/auth/register` | `POST /auth/register` |
+| POST    | `/api/auth/logout`   | `POST /auth/logout`   |
+| POST    | `/api/auth/refresh`  | `POST /auth/refresh`  |
+| GET     | `/api/auth/me`       | `GET /auth/me`        |
+
+### Utilisateurs
+
+| Méthode | Route Next.js     | Ressource Spring     |
+| ------- | ----------------- | -------------------- |
+| GET     | `/api/users`      | `GET /users`         |
+| GET     | `/api/users/{id}` | `GET /users/{id}`    |
+| DELETE  | `/api/users/{id}` | `DELETE /users/{id}` |
+
+### Adresses
+
+| Méthode | Route Next.js         | Ressource Spring         |
+| ------- | --------------------- | ------------------------ |
+| POST    | `/api/addresses`      | `POST /addresses`        |
+| PUT     | `/api/addresses`      | `PUT /addresses`         |
+| GET     | `/api/addresses/{id}` | `GET /addresses/{id}`    |
+| DELETE  | `/api/addresses/{id}` | `DELETE /addresses/{id}` |
+
+### Véhicules personnels (conducteur)
+
+| Méthode | Route Next.js           | Ressource Spring        |
+| ------- | ----------------------- | ----------------------- |
+| POST    | `/api/cars`             | `POST /cars`            |
+| PUT     | `/api/cars`             | `PUT /cars`             |
+| GET     | `/api/cars/driver/{id}` | `GET /cars/driver/{id}` |
+| DELETE  | `/api/cars/{id}`        | `DELETE /cars/{id}`     |
+
+### Covoiturages
+
+| Méthode | Route Next.js               | Ressource Spring            |
+| ------- | --------------------------- | --------------------------- |
+| GET     | `/api/carpools`             | `GET /carpools`             |
+| POST    | `/api/carpools`             | `POST /carpools`            |
+| PUT     | `/api/carpools`             | `PUT /carpools`             |
+| GET     | `/api/carpools/driver/{id}` | `GET /carpools/driver/{id}` |
+| GET     | `/api/carpools/{id}`        | `GET /carpools/{id}`        |
+| DELETE  | `/api/carpools/{id}`        | `DELETE /carpools/{id}`     |
+
+### Réservations de covoiturage
+
+| Méthode | Route Next.js                          | Ressource Spring                        |
+| ------- | -------------------------------------- | --------------------------------------- |
+| POST    | `/api/carpool-bookings`                | `POST /carpool-bookings`                |
+| PUT     | `/api/carpool-bookings`                | `PUT /carpool-bookings`                 |
+| GET     | `/api/carpool-bookings/passenger/{id}` | `GET /carpool-bookings/passenger/{id}`  |
+| GET     | `/api/carpool-bookings/{id}`           | `GET /carpool-bookings/{id}`            |
+| DELETE  | `/api/carpool-bookings/{id}`           | `DELETE /carpool-bookings/{id}`         |
+| PATCH   | `/api/carpool-bookings/{id}/confirm`   | `PATCH /carpool-bookings/{id}/confirm`  |
+| PATCH   | `/api/carpool-bookings/{id}/cancel`    | `PATCH /carpool-bookings/{id}/cancel`   |
+| PATCH   | `/api/carpool-bookings/{id}/complete`  | `PATCH /carpool-bookings/{id}/complete` |
+
+### Véhicules de service
+
+| Méthode | Route Next.js            | Ressource Spring            |
+| ------- | ------------------------ | --------------------------- |
+| GET     | `/api/service-cars`      | `GET /service-cars`         |
+| POST    | `/api/service-cars`      | `POST /service-cars`        |
+| PUT     | `/api/service-cars`      | `PUT /service-cars`         |
+| GET     | `/api/service-cars/{id}` | `GET /service-cars/{id}`    |
+| DELETE  | `/api/service-cars/{id}` | `DELETE /service-cars/{id}` |
+
+### Réservations de véhicules de service
+
+| Méthode | Route Next.js                             | Ressource Spring                            |
+| ------- | ----------------------------------------- | ------------------------------------------- |
+| GET     | `/api/service-car-bookings`               | `GET /service-car-bookings`                 |
+| POST    | `/api/service-car-bookings`               | `POST /service-car-bookings`                |
+| PUT     | `/api/service-car-bookings`               | `PUT /service-car-bookings`                 |
+| GET     | `/api/service-car-bookings/driver/{id}`   | `GET /service-car-bookings/driver/{id}`     |
+| GET     | `/api/service-car-bookings/{id}`          | `GET /service-car-bookings/{id}`            |
+| DELETE  | `/api/service-car-bookings/{id}`          | `DELETE /service-car-bookings/{id}`         |
+| PATCH   | `/api/service-car-bookings/{id}/cancel`   | `PATCH /service-car-bookings/{id}/cancel`   |
+| PATCH   | `/api/service-car-bookings/{id}/complete` | `PATCH /service-car-bookings/{id}/complete` |
+
+### E-mails (Resend uniquement)
+
+| Méthode | Route Next.js                                  | Description                                                                                 |
+| ------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| POST    | `/api/emails/carpool-cancellation`             | Annulation covoiturage — corps attendu dans `app/api/emails/carpool-cancellation/route.ts`. |
+| POST    | `/api/emails/service-car-booking-cancellation` | Annulation location véhicule de service.                                                    |
+
+## Adresses / trajet
+
+Complétion d’adresses : **API Géoplateforme (IGN)** — [`lib/geocoding/ign.ts`](lib/geocoding/ign.ts). Distance / durée : **OSRM** — [`lib/routing/osrm.ts`](lib/routing/osrm.ts). Saisie manuelle possible sur les formulaires.
+
+---
+
+[nextjs.org/docs](https://nextjs.org/docs)

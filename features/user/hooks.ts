@@ -1,6 +1,7 @@
 import { User } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+/** Récupère la liste des utilisateurs (réservé aux admins). */
 export function useGetUsers() {
   return useQuery<User[]>({
     queryKey: ["users"],
@@ -21,6 +22,10 @@ export function useGetUsers() {
   });
 }
 
+/**
+ * Récupère un utilisateur par son identifiant.
+ * @param id Identifiant de l’utilisateur (optionnel, désactive la requête si absent).
+ */
 export function useGetUserById(id?: string) {
   return useQuery<User>({
     queryKey: ["users", id],
@@ -41,6 +46,7 @@ export function useGetUserById(id?: string) {
   });
 }
 
+/** Supprime un utilisateur à partir de son id, met à jour le cache puis actualise la liste des utilisateurs. */
 export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation<void, Error, number>({
@@ -55,11 +61,16 @@ export function useDeleteUser() {
           message: "Erreur lors de la suppression de l'utilisateur",
         }));
         throw new Error(
-          error.message || "Erreur lors de la suppression de l'utilisateur"
+          error.message || "Erreur lors de la suppression de l'utilisateur",
         );
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
+      qc.setQueriesData<User[] | User | undefined>(
+        { queryKey: ["users"] },
+        (old) =>
+          Array.isArray(old) ? old.filter((c) => c.id !== deletedId) : old,
+      );
       qc.invalidateQueries({ queryKey: ["users"] });
     },
   });

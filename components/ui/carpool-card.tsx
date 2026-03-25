@@ -1,6 +1,8 @@
 "use client";
 
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { buildCarpoolCancellationEmailPayload } from "@/features/carpool/cancellation-email";
+import { useSendCarpoolCancellationEmails } from "@/features/carpool/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,10 +23,13 @@ import {
 import { Calendar, Clock, MoreVertical, Route, Users } from "lucide-react";
 import { useState } from "react";
 import { LuPencil, LuTrash2 } from "react-icons/lu";
+import { toast } from "sonner";
 
 type CarpoolCardProps = {
   carpool?: Carpool;
   bookingStatus?: CarpoolBookingStatus;
+  /** Si false, le bouton Modifier est désactivé (ex. au moins un passager a réservé) */
+  canEdit?: boolean;
   onClick?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -33,15 +38,32 @@ type CarpoolCardProps = {
 export function CarpoolCard({
   carpool,
   bookingStatus,
+  canEdit = true,
   onClick,
   onEdit,
   onDelete,
 }: CarpoolCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { mutateAsync: sendCancellationEmails } =
+    useSendCarpoolCancellationEmails();
 
-  const handleDelete = () => {
-    setShowDeleteDialog(false);
-    onDelete?.();
+  const handleDelete = async () => {
+    try {
+      const emailPayload = buildCarpoolCancellationEmailPayload(carpool);
+
+      if (emailPayload) {
+        await sendCancellationEmails(emailPayload);
+      }
+
+      setShowDeleteDialog(false);
+      onDelete?.();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'envoi des emails",
+      );
+    }
   };
 
   const handleEdit = () => {
@@ -60,7 +82,7 @@ export function CarpoolCard({
   return (
     <>
       <Card
-        className={`group overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 hover:border-primary/20 flex flex-col bg-white border-border cursor-pointer relative ${
+        className={`w-105 group overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 hover:border-primary/20 flex flex-col bg-white border-border cursor-pointer relative ${
           isCancelled ? "opacity-75" : ""
         }`}
         onClick={onClick}
@@ -89,12 +111,24 @@ export function CarpoolCard({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleEdit();
+                    if (canEdit) handleEdit();
                   }}
-                  className="cursor-pointer"
+                  disabled={!canEdit}
+                  className={
+                    canEdit ? "cursor-pointer" : "cursor-not-allowed opacity-60"
+                  }
                 >
-                  <LuPencil className="h-4 w-4" />
-                  Modifier
+                  <div className="flex flex-col items-start gap-0.5">
+                    <span className="flex items-center gap-2">
+                      <LuPencil className="h-4 w-4" />
+                      Modifier
+                    </span>
+                    {!canEdit && (
+                      <span className="text-xs text-muted-foreground font-normal pl-6">
+                        Au moins un passager a réservé
+                      </span>
+                    )}
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   variant="destructive"
@@ -117,8 +151,8 @@ export function CarpoolCard({
           <div className="flex items-start gap-3 mb-4">
             <div className="flex flex-col items-center pt-1">
               <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm group-hover:scale-125 group-hover:shadow-md transition-all duration-300" />
-              <div className="w-0.5 h-8 bg-linear-to-b from-primary to-destructive my-1 group-hover:w-1 transition-all duration-300" />
-              <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm group-hover:scale-125 group-hover:shadow-md transition-all duration-300" />
+              <div className="w-0.5 h-8 bg-linear-to-b from-primary to-primary/70 my-1 group-hover:w-1 transition-all duration-300 rounded-full" />
+              <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm group-hover:scale-125 group-hover:shadow-md transition-all duration-300" />
             </div>
             <div className="flex-1 min-w-0 space-y-3">
               <div>
@@ -130,7 +164,7 @@ export function CarpoolCard({
                 </p>
               </div>
               <div>
-                <p className="text-base font-semibold text-card-foreground truncate group-hover:text-destructive transition-colors">
+                <p className="text-base font-semibold text-card-foreground truncate group-hover:text-primary transition-colors">
                   {carpool?.toAddress?.city || "N/A"}
                 </p>
                 <p className="text-sm text-muted-foreground truncate">
@@ -225,6 +259,27 @@ export function CarpoolCard({
         handleDelete={handleDelete}
         title="Supprimer l'annonce"
         description={`Supprimer l'annonce de ${carpool?.fromAddress?.city} vers ${carpool?.toAddress?.city}`}
+        extraContent={
+          carpool?.passengers && carpool.passengers.length > 0 ? (
+            <Card className="mt-3 rounded-md p-3 text-sm">
+              <p className="font-medium">
+                Toutes les personnes ayant reserve recevront un mail
+                d&apos;annulation.
+              </p>
+              <div className="space-y-1">
+                <p className="font-semibold">Passagers concernes :</p>
+                <ul className="list-disc space-y-1 pl-5">
+                  {carpool.passengers.map((passenger) => (
+                    <li key={passenger.id}>
+                      {passenger.fullName}
+                      {passenger.email ? ` (${passenger.email})` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
+          ) : null
+        }
       />
     </>
   );

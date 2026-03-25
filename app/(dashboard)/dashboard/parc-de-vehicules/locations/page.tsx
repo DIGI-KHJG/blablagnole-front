@@ -1,28 +1,75 @@
 "use client";
 
 import DashboardPageTitle from "@/components/shared/dashboard-page-title";
+import DashboardStatusTabs, {
+  type StatusTabValue,
+} from "@/components/shared/dashboard-statut-tabs";
+import VehicleFiltersBar from "@/components/shared/vehicle-filters-bar";
 import { CarBookingCard } from "@/components/ui/car-booking-card";
 import { CarBookingCardSkeleton } from "@/components/ui/car-booking-card-skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   useDeleteServiceCarBooking,
   useGetServiceCarBookings,
 } from "@/features/service-car-booking/hooks";
 import ServiceCarBookingFormDialog from "@/features/service-car-booking/ui/service-car-booking-form-dialog";
-import { ServiceCarBooking } from "@/types/service-car-booking";
+import {
+  filterBookingsByVehicleFilters,
+  type VehicleFilters,
+} from "@/lib/filters/vehicle-filters";
+import {
+  ServiceCarBooking,
+  ServiceCarBookingStatus,
+} from "@/types/service-car-booking";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FaAddressCard } from "react-icons/fa";
 import { toast } from "sonner";
 
+const DEFAULT_FILTERS: VehicleFilters = {
+  brand: "",
+  category: "",
+  motorisation: "",
+  immatriculation: "",
+  status: "",
+};
+
+const CURRENT_BOOKING_STATUSES: ServiceCarBookingStatus[] = [
+  "PENDING",
+  "CONFIRMED",
+];
+const PAST_BOOKING_STATUSES: ServiceCarBookingStatus[] = [
+  "CANCELLED",
+  "COMPLETED",
+];
+
+function filterBookingsByTab(
+  bookings: ServiceCarBooking[] | undefined,
+  tab: StatusTabValue,
+): ServiceCarBooking[] {
+  if (!bookings) return [];
+  if (tab === "all") return bookings;
+  if (tab === "current")
+    return bookings.filter((b) => CURRENT_BOOKING_STATUSES.includes(b.status));
+  return bookings.filter((b) => PAST_BOOKING_STATUSES.includes(b.status));
+}
+
 export default function ParcDeVehiculesLocations() {
   const router = useRouter();
-
+  const [statusTab, setStatusTab] = useState<StatusTabValue>("current");
+  const [vehicleFilters, setVehicleFilters] =
+    useState<VehicleFilters>(DEFAULT_FILTERS);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [selectedServiceCarBooking, setSelectedServiceCarBooking] =
     useState<ServiceCarBooking | null>(null);
 
   const { data: serviceCarBookings, isPending } = useGetServiceCarBookings();
   const { mutate: deleteServiceCarBooking } = useDeleteServiceCarBooking();
+
+  const filteredBookings = useMemo(() => {
+    const byTab = filterBookingsByTab(serviceCarBookings, statusTab);
+    return filterBookingsByVehicleFilters(byTab, vehicleFilters);
+  }, [serviceCarBookings, statusTab, vehicleFilters]);
 
   const handleClickServiceCarBooking = (id: number) => {
     router.push(`/dashboard/parc-de-vehicules/locations/${id}`);
@@ -45,7 +92,15 @@ export default function ParcDeVehiculesLocations() {
         title="Locations"
         description="Gérez les locations de véhicules de services"
         icon={FaAddressCard}
-      ></DashboardPageTitle>
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <DashboardStatusTabs value={statusTab} onValueChange={setStatusTab} />
+          <VehicleFiltersBar
+            filters={vehicleFilters}
+            onFiltersChange={setVehicleFilters}
+          />
+        </div>
+      </DashboardPageTitle>
 
       {isPending ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-h-[200px]">
@@ -53,9 +108,9 @@ export default function ParcDeVehiculesLocations() {
             <CarBookingCardSkeleton key={index} />
           ))}
         </div>
-      ) : serviceCarBookings && serviceCarBookings.length > 0 ? (
+      ) : filteredBookings.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-h-[200px]">
-          {serviceCarBookings.map((booking) => (
+          {filteredBookings.map((booking) => (
             <CarBookingCard
               key={booking.id}
               booking={booking}
@@ -73,13 +128,26 @@ export default function ParcDeVehiculesLocations() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FaAddressCard className="w-12 h-12 text-muted-foreground mb-3 opacity-50" />
-          <p className="text-sm text-muted-foreground">Aucune location</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Vous n&apos;avez pas encore de location pour le moment.
-          </p>
-        </div>
+        <EmptyState
+          icon={FaAddressCard}
+          title={
+            <>
+              {statusTab === "all" && "Aucune location"}
+              {statusTab === "current" && "Aucune location en cours"}
+              {statusTab === "past" && "Aucune location passée"}
+            </>
+          }
+          description={
+            <>
+              {statusTab === "all" &&
+                "Vous n'avez pas encore de location pour le moment."}
+              {statusTab === "current" &&
+                "Les locations en attente ou confirmées apparaîtront ici."}
+              {statusTab === "past" &&
+                "Les locations annulées ou terminées apparaîtront ici."}
+            </>
+          }
+        />
       )}
       <ServiceCarBookingFormDialog
         isOpen={isFormDialogOpen}

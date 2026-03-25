@@ -2,6 +2,7 @@ import { CarpoolBookingSchema } from "@/features/carpool-booking/schemas";
 import { CarpoolBooking } from "@/types/carpool-booking";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+/** Récupère la liste de toutes les réservations de covoiturage. */
 export function useGetCarpoolBookings() {
   return useQuery<CarpoolBooking[]>({
     queryKey: ["carpool-bookings"],
@@ -12,18 +13,22 @@ export function useGetCarpoolBookings() {
       });
       if (!res.ok)
         throw new Error(
-          "Erreur lors de la récupération des réservations de covoiturage"
+          "Erreur lors de la récupération des réservations de covoiturage",
         );
       const data = await res.json();
       return data.content;
     },
-    retry: false,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+    retry: false,
   });
 }
 
+/**
+ * Récupère une réservation de covoiturage par identifiant.
+ * @param id Identifiant de la réservation (optionnel, désactive la requête si absent).
+ */
 export function useGetCarpoolBookingById(id?: string) {
   return useQuery<CarpoolBooking>({
     queryKey: ["carpool-bookings", id],
@@ -34,18 +39,22 @@ export function useGetCarpoolBookingById(id?: string) {
       });
       if (!res.ok)
         throw new Error(
-          "Erreur lors de la récupération de la réservation de covoiturage"
+          "Erreur lors de la récupération de la réservation de covoiturage",
         );
       const data = await res.json();
       return data;
     },
-    retry: false,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+    retry: false,
   });
 }
 
+/**
+ * Récupère les réservations de covoiturage d’un passager.
+ * @param id Identifiant du passager (optionnel, désactive la requête si absent).
+ */
 export function useGetCarpoolBookingByPassengerId(id?: number) {
   return useQuery<CarpoolBooking[]>({
     queryKey: ["carpool-bookings", id],
@@ -56,18 +65,19 @@ export function useGetCarpoolBookingByPassengerId(id?: number) {
       });
       if (!res.ok)
         throw new Error(
-          "Erreur lors de la récupération des réservations de covoiturage de l'utilisateur"
+          "Erreur lors de la récupération des réservations de covoiturage de l'utilisateur",
         );
       const data = await res.json();
       return data.content;
     },
-    retry: false,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+    retry: false,
   });
 }
 
+/** Crée une réservation de covoiturage puis actualise la liste des réservations. */
 export function useBookCarpool() {
   const qc = useQueryClient();
   return useMutation<CarpoolBooking, Error, CarpoolBookingSchema>({
@@ -84,7 +94,7 @@ export function useBookCarpool() {
           message: "Erreur lors de la réservation du covoiturage",
         }));
         throw new Error(
-          error.message || "Erreur lors de la réservation du covoiturage"
+          error.message || "Erreur lors de la réservation du covoiturage",
         );
       }
       return res.json() as Promise<CarpoolBooking>;
@@ -95,6 +105,7 @@ export function useBookCarpool() {
   });
 }
 
+/** Confirme une réservation de covoiturage à partir de son id puis actualise la liste des réservations. */
 export function useConfirmCarpoolBooking() {
   const qc = useQueryClient();
   return useMutation<CarpoolBooking, Error, number>({
@@ -111,7 +122,7 @@ export function useConfirmCarpoolBooking() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de la confirmation de la réservation de covoiturage"
+            "Erreur lors de la confirmation de la réservation de covoiturage",
         );
       }
       return res.json() as Promise<CarpoolBooking>;
@@ -122,6 +133,7 @@ export function useConfirmCarpoolBooking() {
   });
 }
 
+/** Marque une réservation de covoiturage comme terminée à partir de son id puis actualise la liste des réservations. */
 export function useCompleteCarpoolBooking() {
   const qc = useQueryClient();
   return useMutation<CarpoolBooking, Error, number>({
@@ -138,7 +150,7 @@ export function useCompleteCarpoolBooking() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de la complétion de la réservation de covoiturage"
+            "Erreur lors de la complétion de la réservation de covoiturage",
         );
       }
       return res.json() as Promise<CarpoolBooking>;
@@ -149,6 +161,7 @@ export function useCompleteCarpoolBooking() {
   });
 }
 
+/** Annule une réservation de covoiturage à partir de son id puis actualise la liste des réservations. */
 export function useCancelCarpoolBooking() {
   const qc = useQueryClient();
   return useMutation<CarpoolBooking, Error, number>({
@@ -165,7 +178,7 @@ export function useCancelCarpoolBooking() {
         }));
         throw new Error(
           error.message ||
-            "Erreur lors de l'annulation de la réservation de covoiturage"
+            "Erreur lors de l'annulation de la réservation de covoiturage",
         );
       }
       return res.json() as Promise<CarpoolBooking>;

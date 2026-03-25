@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { CarCard } from "@/components/ui/car-card";
 import { CarCardSkeleton } from "@/components/ui/car-card-skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useGetCurrentUser } from "@/features/auth/hooks";
 import { useDeleteCar, useGetDriverCarById } from "@/features/car/hooks";
 import CarFormDialog from "@/features/car/ui/car-form-dialog";
@@ -69,15 +70,11 @@ export default function ProfilePage() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <LuCar className="w-12 h-12 text-muted-foreground mb-3 opacity-50" />
-            <p className="text-sm text-muted-foreground">
-              Aucun véhicule enregistré
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Ajoutez votre premier véhicule pour commencer
-            </p>
-          </div>
+          <EmptyState
+            icon={LuCar}
+            title="Aucun véhicule enregistré"
+            description="Ajoutez votre premier véhicule pour commencer"
+          />
         )}
       </div>
 

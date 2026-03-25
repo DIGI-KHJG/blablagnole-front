@@ -6,8 +6,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDeleteCarpool, useGetCarpoolById } from "@/features/carpool/hooks";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  buildCarpoolCancellationEmailPayload,
+} from "@/features/carpool/cancellation-email";
+import {
+  useDeleteCarpool,
+  useGetCarpoolById,
+  useSendCarpoolCancellationEmails,
+} from "@/features/carpool/hooks";
 import CarpoolFormDialog from "@/features/carpool/ui/carpool-form-dialog";
 import { formatDateTime, formatDuration } from "@/lib/utils";
 import {
@@ -40,23 +53,35 @@ export default function CarpoolDetailsPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showFormDialog, setShowFormDialog] = useState(false);
   const { data: carpool, isPending } = useGetCarpoolById(id as string);
-  const { mutate: deleteCarpool } = useDeleteCarpool();
+  const { mutateAsync: deleteCarpool } = useDeleteCarpool();
+  const { mutateAsync: sendCancellationEmails } =
+    useSendCarpoolCancellationEmails();
 
   const handleDeleteCarpool = async (id: number) => {
-    deleteCarpool(id, {
-      onSuccess: () => {
-        toast.success("Covoiturage supprimé avec succès");
-        router.push("/dashboard/covoiturages/mes-annonces");
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    });
+    try {
+      const emailPayload = buildCarpoolCancellationEmailPayload(carpool);
+
+      if (emailPayload) {
+        await sendCancellationEmails(emailPayload);
+      }
+
+      await deleteCarpool(id);
+      toast.success("Covoiturage supprimé avec succès");
+      router.push("/dashboard/covoiturages/mes-annonces");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de la suppression du covoiturage",
+      );
+    }
   };
 
   if (isPending) {
     return <CarpoolDetailsSkeleton />;
   }
+
+  const canEdit = (carpool?.passengers?.length ?? 0) === 0;
 
   return (
     <div className="bg-background">
@@ -65,7 +90,7 @@ export default function CarpoolDetailsPage() {
           <div className="flex items-center gap-3 mb-3">
             <Badge
               className={`${getStatusColor(
-                carpool?.status
+                carpool?.status,
               )} text-white text-md font-semibold`}
             >
               {getStatusLabel(carpool?.status)}
@@ -82,13 +107,25 @@ export default function CarpoolDetailsPage() {
           )}
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setShowFormDialog(true)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={!canEdit}
+                  onClick={() => canEdit && setShowFormDialog(true)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              {canEdit
+                ? "Modifier l'annonce"
+                : "Modification impossible : au moins un passager a réservé"}
+            </TooltipContent>
+          </Tooltip>
           <Button
             variant="outline"
             size="icon"
@@ -112,8 +149,8 @@ export default function CarpoolDetailsPage() {
                 <div className="flex items-start gap-3">
                   <div className="flex flex-col items-center pt-1">
                     <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" />
-                    <div className="w-0.5 h-8 bg-linear-to-b from-primary to-destructive my-1" />
-                    <div className="w-3 h-3 rounded-full bg-destructive border-2 border-background shadow-sm" />
+                    <div className="w-0.5 h-21 bg-linear-to-b from-primary to-primary my-1" />
+                    <div className="w-3 h-3 rounded-full bg-primary border-2 border-background shadow-sm" />
                   </div>
                   <div className="flex-1 min-w-0 space-y-4">
                     <div>
@@ -241,7 +278,7 @@ export default function CarpoolDetailsPage() {
                         <div className="absolute bottom-4 left-4 flex gap-2 flex-wrap">
                           <Badge
                             className={`${getMotorisationColor(
-                              carpool.car.motorisation
+                              carpool.car.motorisation,
                             )} text-white text-md font-semibold`}
                           >
                             {getMotorisationLabel(carpool.car.motorisation)}
@@ -343,10 +380,11 @@ export default function CarpoolDetailsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <User className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>Aucun passager pour le moment</p>
-            </div>
+            <EmptyState
+              icon={User}
+              title="Aucun passager pour le moment"
+              className="py-8"
+            />
           )}
         </CardContent>
       </Card>
@@ -363,6 +401,27 @@ export default function CarpoolDetailsPage() {
         handleDelete={() => handleDeleteCarpool(carpool?.id as number)}
         title="Supprimer le covoiturage"
         description={`Supprimer le covoiturage de ${carpool?.fromAddress?.city} vers ${carpool?.toAddress?.city}`}
+        extraContent={
+          carpool?.passengers && carpool.passengers.length > 0 ? (
+            <Card className="mt-3 rounded-md p-3 text-sm">
+              <p className="font-medium">
+                Toutes les personnes ayant réservé recevront un mail
+                d&apos;annulation.
+              </p>
+              <div className="space-y-1">
+                <p className="font-semibold">Passagers concernés :</p>
+                <ul className="list-disc space-y-1 pl-5">
+                  {carpool.passengers.map((passenger) => (
+                    <li key={passenger.id}>
+                      {passenger.fullName}
+                      {passenger.email ? ` (${passenger.email})` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
+          ) : null
+        }
       />
     </div>
   );

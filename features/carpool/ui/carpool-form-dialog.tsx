@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CarpoolForm } from "@/features/carpool/ui/carpool-form";
+import type { CarpoolSchema } from "@/features/carpool/schemas";
 import { Carpool } from "@/types/carpool";
 import { IoCarSport } from "react-icons/io5";
 
@@ -38,7 +39,7 @@ export default function CarpoolFormDialog({
               : "Renseignez les informations du covoiturage"}
           </DialogDescription>
         </DialogHeader>
-        <CarpoolForm initialData={initialData} onClose={onClose} />
+        <CarpoolForm initialData={initialData as CarpoolSchema | Carpool | undefined} onClose={onClose} />
       </DialogContent>
     </Dialog>
   );

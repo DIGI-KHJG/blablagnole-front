@@ -72,7 +72,7 @@ export default function InputPasswordStrength({
 
   return (
     <div>
-      {/* Password input field with toggle visibility button */}
+      {/* Champ mot de passe avec bouton afficher/masquer */}
       <div className="relative">
         <Input
           {...props}
@@ -106,7 +106,7 @@ export default function InputPasswordStrength({
         </button>
       </div>
 
-      {/* Password strength indicator */}
+      {/* Indicateur de force du mot de passe */}
       {value && (
         <>
           <div
@@ -125,7 +125,7 @@ export default function InputPasswordStrength({
             ></div>
           </div>
 
-          {/* Password strength description */}
+          {/* Description de la force du mot de passe */}
           <p
             id={descriptionId}
             className="mb-2 text-sm font-medium text-foreground"
@@ -133,7 +133,7 @@ export default function InputPasswordStrength({
             {getStrengthText(strengthScore)}. Doit contenir :
           </p>
 
-          {/* Password requirements list */}
+          {/* Liste des exigences du mot de passe */}
           <ul className="space-y-1.5" aria-label="Exigences du mot de passe">
             {strength.map((req, index) => (
               <li key={index} className="flex items-center gap-2">

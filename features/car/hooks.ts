@@ -2,6 +2,10 @@ import { Car } from "@/types/car";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CarSchema } from "./schemas";
 
+/**
+ * Récupère les véhicules personnels d’un conducteur.
+ * @param id Identifiant du conducteur (optionnel, désactive la requête si absent).
+ */
 export function useGetDriverCarById(id?: number) {
   return useQuery<Car[]>({
     queryKey: ["cars", id],
@@ -12,18 +16,19 @@ export function useGetDriverCarById(id?: number) {
       });
       if (!res.ok)
         throw new Error(
-          "Erreur lors de la récupération des véhicules personnels"
+          "Erreur lors de la récupération des véhicules personnels",
         );
       const data = await res.json();
       return data.content;
     },
-    retry: false,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+    retry: false,
   });
 }
 
+/** Ajoute un véhicule personnel puis actualise la liste des véhicules. */
 export function useAddCar() {
   const qc = useQueryClient();
   return useMutation<Car, Error, CarSchema>({
@@ -49,6 +54,7 @@ export function useAddCar() {
   });
 }
 
+/** Modifie un véhicule personnel puis actualise la liste des véhicules. */
 export function useEditCar() {
   const qc = useQueryClient();
   return useMutation<Car, Error, CarSchema>({
@@ -65,7 +71,7 @@ export function useEditCar() {
           message: "Erreur lors de la modification du véhicule",
         }));
         throw new Error(
-          error.message || "Erreur lors de la modification du véhicule"
+          error.message || "Erreur lors de la modification du véhicule",
         );
       }
       return res.json() as Promise<Car>;
@@ -76,6 +82,7 @@ export function useEditCar() {
   });
 }
 
+/** Supprime un véhicule personnel à partir de son id, met à jour le cache puis actualise la liste. */
 export function useDeleteCar() {
   const qc = useQueryClient();
   return useMutation<void, Error, number>({
@@ -90,11 +97,16 @@ export function useDeleteCar() {
           message: "Erreur lors de la suppression du véhicule",
         }));
         throw new Error(
-          error.message || "Erreur lors de la suppression du véhicule"
+          error.message || "Erreur lors de la suppression du véhicule",
         );
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
+      qc.setQueriesData<Car[] | Car | undefined>(
+        { queryKey: ["cars"] },
+        (old) =>
+          Array.isArray(old) ? old.filter((c) => c.id !== deletedId) : old,
+      );
       qc.invalidateQueries({ queryKey: ["cars"] });
     },
   });

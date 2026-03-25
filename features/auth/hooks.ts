@@ -4,6 +4,7 @@ import { RegisterSchema } from "@/features/auth/schemas";
 import { User } from "@/types/user";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+/** Récupère l'utilisateur connecté via /api/auth/me. Redirige vers /connexion si 401 sur une page dashboard. */
 export function useGetCurrentUser() {
   return useQuery<User>({
     queryKey: ["auth", "me"],
@@ -11,17 +12,30 @@ export function useGetCurrentUser() {
       const res = await fetch("/api/auth/me", {
         method: "GET",
         credentials: "include",
+        cache: "no-store",
       });
-      if (!res.ok) throw new Error("Non connecté");
+      if (!res.ok) {
+        if (
+          res.status === 401 &&
+          typeof window !== "undefined" &&
+          window.location.pathname.startsWith("/dashboard")
+        ) {
+          window.location.href = "/connexion";
+        }
+        throw new Error("Non connecté");
+      }
       return res.json();
     },
-    retry: false,
     staleTime: 30_000,
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
+    retry: false,
   });
 }
 
+/** Inscrit un nouvel utilisateur puis actualise l'utilisateur connecté. */
 export function useRegister() {
   const qc = useQueryClient();
   return useMutation<User, Error, RegisterSchema>({
@@ -47,6 +61,7 @@ export function useRegister() {
   });
 }
 
+/** Connecte un utilisateur avec son email et son mot de passe puis actualise l'utilisateur connecté. */
 export function useLogin() {
   const qc = useQueryClient();
   return useMutation<User, Error, { email: string; password: string }>({
@@ -72,6 +87,7 @@ export function useLogin() {
   });
 }
 
+/** Déconnecte l'utilisateur puis supprime les données de session en cache. */
 export function useLogout() {
   const qc = useQueryClient();
   return useMutation<void, Error, void>({

@@ -6,7 +6,7 @@ export function ServiceCarBookingDetailsSkeleton() {
     <div className="bg-background">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="col-span-1">
-          {/* Image skeleton */}
+          {/* Bloc skeleton : image du véhicule */}
           <div className="relative h-96 w-full overflow-hidden rounded-lg mb-6 bg-muted">
             <Skeleton className="h-full w-full" />
             <div className="absolute bottom-4 left-4 flex gap-2 flex-wrap">
@@ -15,12 +15,12 @@ export function ServiceCarBookingDetailsSkeleton() {
             </div>
           </div>
 
-          {/* Title skeleton */}
+          {/* Bloc skeleton : titre */}
           <div className="mb-4">
             <Skeleton className="h-10 w-64 mb-2" />
           </div>
 
-          {/* Vehicle details card skeleton */}
+          {/* Bloc skeleton : carte détails véhicule */}
           <Card className="border-border flex-1">
             <CardHeader>
               <CardTitle className="text-lg">
@@ -89,7 +89,7 @@ export function ServiceCarBookingDetailsSkeleton() {
         </div>
 
         <div className="col-span-1">
-          {/* Booking details card skeleton */}
+          {/* Bloc skeleton : carte détails réservation */}
           <Card className="border-border h-full">
             <CardHeader>
               <CardTitle className="text-2xl font-bold flex items-center justify-between gap-2">
@@ -98,7 +98,7 @@ export function ServiceCarBookingDetailsSkeleton() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Dates card skeleton */}
+              {/* Bloc skeleton : carte dates */}
               <Card className="border-border bg-white">
                 <CardHeader>
                   <CardTitle className="text-lg">
@@ -133,7 +133,7 @@ export function ServiceCarBookingDetailsSkeleton() {
                 </CardContent>
               </Card>
 
-              {/* Driver card skeleton */}
+              {/* Bloc skeleton : carte conducteur */}
               <Card className="border-border bg-white">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -149,7 +149,7 @@ export function ServiceCarBookingDetailsSkeleton() {
                 </CardContent>
               </Card>
 
-              {/* Actions card skeleton */}
+              {/* Bloc skeleton : carte actions */}
               <Card className="border-border bg-white">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">

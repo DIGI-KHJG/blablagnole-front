@@ -1,6 +1,7 @@
 import { addressSchema } from "@/features/addresses/schemas";
 import { z } from "zod";
 
+/** Valide les informations d'un covoiturage. */
 export const carpoolSchema = z.object({
   id: z.number().optional(),
   driverId: z.number({ error: "Le conducteur est requis" }),
@@ -21,4 +22,5 @@ export const carpoolSchema = z.object({
   status: z.enum(["OPEN", "FULL", "CANCELLED", "COMPLETED"]).default("OPEN"),
 });
 
+/** Type utilisé pour saisir un covoiturage dans les formulaires. */
 export type CarpoolSchema = z.input<typeof carpoolSchema>;

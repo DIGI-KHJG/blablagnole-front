@@ -34,7 +34,7 @@ const routeConfig: Record<
   "/dashboard": {
     label: "Accueil",
     icon: FaHome,
-    clickable: true,
+    clickable: false,
   },
   "/dashboard/collaborateurs": {
     label: "Collaborateurs",
@@ -110,7 +110,7 @@ function buildBreadcrumbItems(pathname: string) {
     path: "/dashboard",
     label: "Accueil",
     icon: FaHome,
-    clickable: true,
+    clickable: false,
   });
 
   if (pathname === "/dashboard") {
@@ -173,7 +173,7 @@ export function DashboardBreadcrumb() {
                     className={cn(
                       "flex items-center gap-1.5",
                       isLast && "font-medium text-primary",
-                      !item.clickable && "cursor-default"
+                      !item.clickable && "cursor-default",
                     )}
                   >
                     <item.icon className="h-4 w-4" />

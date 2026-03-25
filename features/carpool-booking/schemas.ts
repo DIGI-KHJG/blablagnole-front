@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** Valide les informations d'une réservation de covoiturage. */
 export const carpoolBookingSchema = z.object({
   id: z.number().optional(),
   carpoolId: z.number(),
@@ -9,4 +10,5 @@ export const carpoolBookingSchema = z.object({
     .default("PENDING"),
 });
 
+/** Type utilisé pour saisir une réservation de covoiturage. */
 export type CarpoolBookingSchema = z.input<typeof carpoolBookingSchema>;

@@ -1,20 +1,25 @@
 "use client";
 
 import { ClockIcon } from "lucide-react";
+import { DayPicker } from "react-day-picker";
 import { useId, useMemo } from "react";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+type DisabledMatcher = React.ComponentProps<typeof DayPicker>["disabled"];
+
 interface InputDateTimeCalendarProps {
   value?: Date;
   onChange?: (date: Date | undefined) => void;
+  disabled?: DisabledMatcher;
 }
 
 export default function InputDateTimeCalendar({
   value,
   onChange,
+  disabled,
 }: InputDateTimeCalendarProps) {
   const id = useId();
 
@@ -67,6 +72,7 @@ export default function InputDateTimeCalendar({
           className="p-2 w-full "
           selected={date}
           onSelect={handleDateSelect}
+          disabled={disabled}
         />
         <div className="border-t p-3">
           <div className="flex items-center gap-3">
