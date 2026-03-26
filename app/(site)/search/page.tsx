@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useQueryState } from "nuqs";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 function matchesDeparture(carpool: Carpool, departure: string | null): boolean {
@@ -53,7 +53,7 @@ function matchesDateTime(carpool: Carpool, dateTime: string | null): boolean {
   );
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const [departure] = useQueryState("departure");
   const [arrival] = useQueryState("arrival");
   const [dateTime] = useQueryState("dateTime");
@@ -231,5 +231,29 @@ export default function SearchPage() {
         carpool={selectedCarpool}
       />
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background">
+          <main className="mx-auto max-w-4xl px-6 py-8">
+            <div className="space-y-4">
+              <div className="mb-8 space-y-2">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              {[1, 2, 3].map((i) => (
+                <SearchCarpoolCardSkeleton key={i} />
+              ))}
+            </div>
+          </main>
+        </div>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   );
 }
