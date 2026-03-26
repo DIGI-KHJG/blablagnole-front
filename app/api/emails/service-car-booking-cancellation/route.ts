@@ -2,8 +2,8 @@ import ServiceCarBookingCancellationEmail from "@/emails/service-car-booking-can
 import { route } from "@/lib/api/zodRoute";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const resendFrom = process.env.RESEND_FROM;
+const resend = new Resend(process.env.RESEND_API_KEY || "");
+const resendFrom = process.env.RESEND_FROM || "";
 
 /**
  * Envoie les emails d'annulation pour une réservation de véhicule de service.
@@ -39,7 +39,8 @@ export const POST = route.handler(async (request, { body }) => {
     const recipients = Array.isArray(payload?.recipients)
       ? payload.recipients.filter(
           (recipient): recipient is CancellationRecipient =>
-            typeof recipient?.email === "string" && recipient.email.trim() !== "",
+            typeof recipient?.email === "string" &&
+            recipient.email.trim() !== "",
         )
       : [];
 
