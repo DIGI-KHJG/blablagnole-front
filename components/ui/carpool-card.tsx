@@ -82,7 +82,7 @@ export function CarpoolCard({
   return (
     <>
       <Card
-        className={`w-105 group overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 hover:border-primary/20 flex flex-col bg-white border-border cursor-pointer relative ${
+        className={`w-full min-w-0 group overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 hover:border-primary/20 flex flex-col bg-white border-border cursor-pointer relative ${
           isCancelled ? "opacity-75" : ""
         }`}
         onClick={onClick}

@@ -67,7 +67,10 @@ export default function MesAnnonces() {
         description="Gérez mes annonces de covoiturage"
         icon={PiCardsFill}
         buttonText="Publier une annonce"
-        onButtonClick={() => setIsFormDialogOpen(true)}
+        onButtonClick={() => {
+          setSelectedCarpool(null);
+          setIsFormDialogOpen(true);
+        }}
       >
         <DashboardStatusTabs value={statusTab} onValueChange={setStatusTab} />
       </DashboardPageTitle>
@@ -125,9 +128,10 @@ export default function MesAnnonces() {
 
       <CarpoolFormDialog
         isOpen={isFormDialogOpen}
+        initialData={selectedCarpool ?? undefined}
         onClose={() => {
           setIsFormDialogOpen(false);
-          setSelectedCarpool(selectedCarpool ?? null);
+          setSelectedCarpool(null);
         }}
       />
     </>
