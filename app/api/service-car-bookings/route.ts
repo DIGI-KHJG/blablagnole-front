@@ -1,4 +1,5 @@
 import { proxyToSpring } from "@/lib/api/proxyToSpring";
+import { toLocalDateTimeString } from "@/lib/utils";
 import { route } from "@/lib/api/zodRoute";
 
 /**
@@ -16,8 +17,8 @@ export const POST = route.handler(async (request, { body }) => {
     body: {
       serviceCarId: body.serviceCarId,
       driverId: body.driverId,
-      startAt: body.startAt,
-      endAt: body.endAt,
+      startAt: toLocalDateTimeString(body.startAt),
+      endAt: toLocalDateTimeString(body.endAt),
       status: body.status,
     },
   });
@@ -30,8 +31,8 @@ export const PUT = route.handler(async (request, { body }) => {
       id: body.id,
       serviceCarId: body.serviceCarId,
       driverId: body.driverId,
-      startAt: body.startAt,
-      endAt: body.endAt,
+      startAt: toLocalDateTimeString(body.startAt),
+      endAt: toLocalDateTimeString(body.endAt),
       status: body.status,
     },
   });

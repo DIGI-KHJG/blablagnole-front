@@ -34,19 +34,23 @@ const DEFAULT_FILTERS: VehicleFilters = {
 };
 
 /**
- * Construit l’ensemble des ids de véhicules actuellement réservés (PENDING/CONFIRMED)
- * et dont la période de réservation recouvre \"maintenant\".
+ * Construit l’ensemble des ids de véhicules actuellement réservés par l'utilisateur connecté
+ * (PENDING/CONFIRMED) et dont la période de réservation recouvre "maintenant".
  * @param bookings Liste des réservations de véhicules de service.
- * @returns Ensemble des ids de véhicules indisponibles à l’instant T.
+ * @param currentUserId Id de l'utilisateur connecté.
+ * @returns Ensemble des ids de véhicules indisponibles à l’instant T pour cet utilisateur.
  */
 function getReservedServiceCarIds(
   bookings: ServiceCarBooking[] | undefined,
+  currentUserId?: number,
 ): Set<number> {
   const reserved = new Set<number>();
-  if (!bookings) return reserved;
+  if (!bookings || currentUserId == null) return reserved;
   const now = Date.now();
   for (const b of bookings) {
     if (b.status !== "PENDING" && b.status !== "CONFIRMED") continue;
+    const bookingUserId = b.driverId ?? b.driver?.id;
+    if (bookingUserId !== currentUserId) continue;
     const carId = b.serviceCarId ?? b.serviceCar?.id;
     if (carId == null) continue;
     const start =
@@ -79,12 +83,15 @@ export default function LocationPage() {
     const inService = (serviceCars ?? []).filter(
       (car) => car.status === "IN_SERVICE",
     );
-    const reservedIds = getReservedServiceCarIds(serviceCarBookings);
+    const reservedIds = getReservedServiceCarIds(
+      serviceCarBookings,
+      currentUser?.id,
+    );
     const available = inService.filter(
       (car) => car.id != null && !reservedIds.has(car.id),
     );
     return filterCarsByVehicleFilters(available, vehicleFilters);
-  }, [serviceCars, serviceCarBookings, vehicleFilters]);
+  }, [serviceCars, serviceCarBookings, currentUser?.id, vehicleFilters]);
 
   const isPending = isPendingCars || isPendingBookings;
 
@@ -149,10 +156,7 @@ export default function LocationPage() {
             </div>
           </FadeIn>
         ) : filteredCars.length > 0 ? (
-          <StaggerContainer
-            staggerDelay={0.08}
-            className={gridClassName}
-          >
+          <StaggerContainer staggerDelay={0.08} className={gridClassName}>
             {filteredCars.map((serviceCar) => (
               <StaggerItem key={serviceCar.id}>
                 <CarCard

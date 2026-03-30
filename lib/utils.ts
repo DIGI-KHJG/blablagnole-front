@@ -57,3 +57,30 @@ export const formatDuration = (minutes: number) => {
   }
   return `${mins}min`;
 };
+
+/**
+ * Convertit une date JS en chaîne LocalDateTime (sans fuseau), format
+ * `yyyy-MM-dd'T'HH:mm:ss`.
+ *
+ * Pourquoi :
+ * - `JSON.stringify(new Date())` produit une date UTC (`...Z`).
+ * - Le backend attend un LocalDateTime "mur" (heure locale sans timezone).
+ * - Cette conversion évite les décalages d'heure (ex: -2h) entre la saisie
+ *   du formulaire et l'heure sauvegardée/affichée.
+ *
+ * Utilisation recommandée :
+ * - uniquement juste avant l'envoi vers une API qui consomme un LocalDateTime.
+ */
+export function toLocalDateTimeString(value: string | Date): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  const yyyy = date.getFullYear();
+  const MM = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  const ss = String(date.getSeconds()).padStart(2, "0");
+
+  return `${yyyy}-${MM}-${dd}T${hh}:${mm}:${ss}`;
+}

@@ -3,6 +3,7 @@
 import { ClockIcon } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import { useId, useMemo } from "react";
+import { fr } from "date-fns/locale";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,7 @@ export default function InputDateTimeCalendar({
           selected={date}
           onSelect={handleDateSelect}
           disabled={disabled}
+          locale={fr}
         />
         <div className="border-t p-3">
           <div className="flex items-center gap-3">
